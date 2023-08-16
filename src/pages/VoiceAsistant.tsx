@@ -2,12 +2,16 @@ import { Button } from 'antd'
 import { ChatContext } from '../contexts/ChatContext'
 import { useContext, useEffect, useRef } from 'react'
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition'
-import { IsWriting } from '../components'
+import { IsWriting } from '../components/VoiceAsistant'
+import io from 'socket.io-client'
+import { useNavigate } from 'react-router-dom'
 
 export const ChatAsistant = () => {
   // 1
-  const { OutGoingMessage, setOutGoingMessage, NewRequest, Available, IsWrite, setIsWrite, InComingMessage, setInComingMessage, setHistory, AddOutGoing, AddInComing, MessageArray, setMessageArray } =
+  const { OutGoingMessage, setOutGoingMessage, setTheme, MessageRequest, Theme, Available, InComingMessage, setInComingMessage, setHistory, AddOutGoing, AddInComing, MessageArray, setMessageArray } =
     useContext(ChatContext)
+
+  const navigate = useNavigate()
   // 2
   const ScrollingBottom = useRef<any>(null)
   // 3
@@ -39,10 +43,76 @@ export const ChatAsistant = () => {
       }
     },
     {
+      command: 'ey Kapsül *',
+      callback: (e: string) => {
+        resetTranscript()
+        setOutGoingMessage(e)
+        console.log(e)
+      }
+    },
+    {
       command: 'hey kapsül *',
       callback: (e: string) => {
         resetTranscript()
         setOutGoingMessage(e)
+        console.log(e)
+      }
+    },
+    {
+      command: 'ey kapsül *',
+      callback: (e: string) => {
+        resetTranscript()
+        setOutGoingMessage(e)
+        console.log(e)
+      }
+    },
+    {
+      command: 'Karanlık temaya geç',
+      callback: () => {
+        setTheme({
+          text_color: 'text-white',
+          buble_background: 'bg-[#333333]',
+          background: 'bg-black',
+          navbar_background: 'bg-[#333333]/50'
+        })
+      }
+    },
+    {
+      command: 'Karanlık demeye geç',
+      callback: () => {
+        setTheme({
+          text_color: 'text-white',
+          buble_background: 'bg-[#333333]',
+          background: 'bg-black',
+          navbar_background: 'bg-[#333333]/50'
+        })
+      }
+    },
+    {
+      command: 'Aydınlık temaya geç',
+      callback: () => {
+        setTheme({
+          text_color: 'text-black',
+          buble_background: 'bg-[#EAEAEA]',
+          background: 'bg-white',
+          navbar_background: 'bg-[#EAEAEA]'
+        })
+      }
+    },
+    {
+      command: 'Aydınlık demeye geç',
+      callback: () => {
+        setTheme({
+          text_color: 'text-black',
+          buble_background: 'bg-[#EAEAEA]',
+          background: 'bg-white',
+          navbar_background: 'bg-[#EAEAEA]'
+        })
+      }
+    },
+    {
+      command: '*',
+      callback: (e: string) => {
         console.log(e)
       }
     },
@@ -75,7 +145,7 @@ export const ChatAsistant = () => {
 
   useEffect(() => {
     AddOutGoing()
-    NewRequest()
+    MessageRequest()
   }, [OutGoingMessage])
 
   useEffect(() => {
@@ -87,8 +157,8 @@ export const ChatAsistant = () => {
   }
 
   return (
-    <div className="m-w-[100vw] m-h-[100vh] box-border text-white">
-      <div className="flex justify-center items-center  h-[15vh] ">
+    <div className={`m-w-[100vw] m-h-[100vh] box-border ${Theme.text_color}`}>
+      <div className={`flex justify-center items-center  h-[15vh] ${Theme.navbar_background}`}>
         <h1 className=" text-7xl">Kapsül ChatBot</h1>
       </div>
       <>
