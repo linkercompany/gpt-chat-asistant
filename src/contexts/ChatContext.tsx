@@ -1,6 +1,6 @@
 import React, { ReactNode, createContext, useCallback, useMemo, useState } from 'react'
-import { newRequest } from '../utils'
-import { InComingBuble, IsWriting, OutGoingBuble } from '../components'
+import { messageRequest } from '../utils'
+import { InComingBuble, IsWriting, OutGoingBuble } from '../components/VoiceAsistant'
 import { setTimeout } from 'timers/promises'
 
 interface ChatContextType {
@@ -10,15 +10,29 @@ interface ChatContextType {
   OutGoingMessage: string
   History: string
   MessageArray: any[]
+  Theme: {
+    text_color: string
+    buble_background: string
+    background: string
+    navbar_background: string
+  }
   InComingMessage: string
   setOutGoingMessage: React.Dispatch<React.SetStateAction<string>>
+  setTheme: React.Dispatch<
+    React.SetStateAction<{
+      text_color: string
+      buble_background: string
+      background: string
+      navbar_background: string
+    }>
+  >
   setHistory: React.Dispatch<React.SetStateAction<string>>
   setMessageArray: React.Dispatch<React.SetStateAction<any[]>>
   setInComingMessage: React.Dispatch<React.SetStateAction<string>>
   setTemp: React.Dispatch<React.SetStateAction<boolean>>
   setAvailable: React.Dispatch<React.SetStateAction<boolean>>
   setIsWrite: React.Dispatch<React.SetStateAction<boolean>>
-  NewRequest: () => void
+  MessageRequest: () => void
   AddOutGoing: () => void
   AddInComing: () => void
 }
@@ -32,11 +46,18 @@ export const ChatContext = createContext<ChatContextType>({
   Available: true,
   IsWrite: false,
   MessageArray: [],
+  Theme: {
+    text_color: 'text-black]',
+    buble_background: 'bg-[#EAEAEA]',
+    background: 'bg-white',
+    navbar_background: 'bg-[#EAEAEA]-500/50'
+  },
   OutGoingMessage: '',
   History: '',
   InComingMessage: '',
   setOutGoingMessage: () => {},
   setMessageArray: () => {},
+  setTheme: () => {},
   setInComingMessage: () => {},
   AddOutGoing: () => {},
   AddInComing: () => {},
@@ -44,7 +65,7 @@ export const ChatContext = createContext<ChatContextType>({
   setIsWrite: () => {},
   setHistory: () => {},
   setTemp: () => {},
-  NewRequest: () => {}
+  MessageRequest: () => {}
 })
 
 export const ChatContextProvider: React.FC<ChatProviderProps> = ({ children }) => {
@@ -53,16 +74,26 @@ export const ChatContextProvider: React.FC<ChatProviderProps> = ({ children }) =
   const [OutGoingMessage, setOutGoingMessage] = useState<string>('')
   const [InComingMessage, setInComingMessage] = useState<string>('')
   const [History, setHistory] = useState<string>('')
+  const [Theme, setTheme] = useState<{
+    text_color: string
+    buble_background: string
+    background: string
+    navbar_background: string
+  }>({
+    text_color: 'text-black',
+    buble_background: 'bg-[#EAEAEA]',
+    background: 'bg-white',
+    navbar_background: 'bg-[#EAEAEA]'
+  })
   const [Available, setAvailable] = useState<boolean>(true)
   const [IsWrite, setIsWrite] = useState<boolean>(false)
 
   // New request for GPT
-  const NewRequest = async () => {
+  const MessageRequest = async () => {
     if (!(OutGoingMessage.length > 0)) return
     if (!Available) return
-
     setAvailable(false)
-    let temp = await newRequest(OutGoingMessage, History)
+    let temp = await messageRequest(OutGoingMessage, History)
     console.log(temp)
     setInComingMessage(temp.message.content)
     setHistory(temp.historyId)
@@ -104,7 +135,9 @@ export const ChatContextProvider: React.FC<ChatProviderProps> = ({ children }) =
         setMessageArray,
         Available,
         setAvailable,
-        NewRequest,
+        Theme,
+        setTheme,
+        MessageRequest,
         InComingMessage,
         setInComingMessage,
         History,
