@@ -26,7 +26,7 @@ export const ChatAsistant = () => {
     setMessageArray
   } = useContext(ChatContext)
 
-  const socket = new WebSocket('ws://localhost:8000/room/connect') // Sunucu adresine ve portuna göre değiştirin
+  const socket = new WebSocket('ws://kale.kapsulteknoloji.org/facetime/room/connect') // Sunucu adresine ve portuna göre değiştirin
 
   useEffect(() => {
     SpeechRecognition.startListening({
