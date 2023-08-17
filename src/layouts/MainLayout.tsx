@@ -11,10 +11,9 @@ export const MainLayout = () => {
     <>
       <Helmet>
         <html className="m-0 p-0" />
-        <body className={`m-0 min-h-full  ${Theme.background} bg- p-0`} />
+        <body className={`m-0 min-h-full ${Theme.background} p-0`} />
       </Helmet>
       <Outlet />
     </>
   )
 }
-// ${Theme.background}

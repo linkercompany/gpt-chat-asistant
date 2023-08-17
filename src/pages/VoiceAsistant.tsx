@@ -1,19 +1,71 @@
-import { Button } from 'antd'
-import { ChatContext } from '../contexts/ChatContext'
-import { useContext, useEffect, useRef } from 'react'
-import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition'
-import { IsWriting } from '../components/VoiceAsistant'
-import io from 'socket.io-client'
-import { useNavigate } from 'react-router-dom'
 import siyah from '../assets/siyah.svg'
 import beyaz from '../assets/beyaz.svg'
+import { useNavigate } from 'react-router-dom'
+import { ChatContext } from '../contexts/ChatContext'
+import { IsWriting } from '../components/VoiceAsistant'
+import { useContext, useEffect, useRef, useState } from 'react'
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition'
 
 export const ChatAsistant = () => {
   // 1
-  const { OutGoingMessage, setOutGoingMessage, setTheme, MessageRequest, Theme, Available, InComingMessage, setInComingMessage, setHistory, AddOutGoing, AddInComing, MessageArray, setMessageArray } =
-    useContext(ChatContext)
+  const {
+    OutGoingMessage,
+    setOutGoingMessage,
+    Room,
+    setRoom,
+    setTheme,
+    MessageRequest,
+    Theme,
+    Available,
+    InComingMessage,
+    setInComingMessage,
+    setHistory,
+    AddOutGoing,
+    AddInComing,
+    MessageArray,
+    setMessageArray
+  } = useContext(ChatContext)
 
-  const navigate = useNavigate()
+  const socket = new WebSocket('ws://localhost:8000/room/connect') // Sunucu adresine ve portuna göre değiştirin
+
+  useEffect(() => {
+    SpeechRecognition.startListening({
+      continuous: true,
+      language: 'tr'
+    })
+    // Bağlantı başlatıldığında çalışacak işlev
+    socket.onopen = () => {
+      console.log('WebSocket bağlantısı başarıyla sağlandı.')
+
+      // Sunucuya veri gönderme
+      socket.send('Merhaba, sunucu!')
+    }
+  }, [])
+
+  // Sunucudan mesaj alındığında çalışacak işlev
+  socket.onmessage = (event) => {
+    const receivedData = event.data
+    console.log('Sunucudan gelen veri:', receivedData)
+    setRoom(receivedData)
+  }
+
+  useEffect(() => {
+    if (Room.length === 0) return
+    // Bağlantı kapatıldığında çalışacak işlev
+    socket.onclose = (event) => {
+      if (event.wasClean) {
+        console.log(`Bağlantı temiz bir şekilde kapatıldı, kod: ${event.code}, neden: ${event.reason}`)
+      } else {
+        console.error('Bağlantı kesildi.')
+      }
+    }
+    window.location.href = `http://localhost:4000/Mehmet Alperen Yedik/${Room}`
+  }, [Room])
+
+  // Bağlantı hatası oluştuğunda çalışacak işlev
+  socket.onerror = (error) => {
+    console.error('Hata oluştu:', error)
+  }
   // 2
   const ScrollingBottom = useRef<any>(null)
   // 3
@@ -143,13 +195,6 @@ export const ChatAsistant = () => {
   }, [InComingMessage, OutGoingMessage])
 
   useEffect(() => {
-    SpeechRecognition.startListening({
-      continuous: true,
-      language: 'tr'
-    })
-  }, [])
-
-  useEffect(() => {
     AddOutGoing()
     MessageRequest()
   }, [OutGoingMessage])
@@ -169,21 +214,7 @@ export const ChatAsistant = () => {
         backgroundImage: `url(${Theme.svg_image === 'light' ? siyah : beyaz})`
       }}
     >
-      <>
-        {/* <p className="text-white">{transcript}</p>
-      <h1>---------------</h1>
-      <h1>{OutGoingMessage}</h1>
-      <h1>{InComingMessage}</h1>
-      <Button
-        className="text-white"
-        onClick={() => {
-          resetTranscript()
-        }}
-      >
-        reset
-      </Button> */}
-      </>
-      <div className={` flex flex-col justify-end h-[100vh] ${Available ? '' : 'h-[70vh]'}	`}>
+      <div className={` flex flex-col justify-end  ${Available ? 'h-[100vh]' : 'h-[95vh]'}	`}>
         <div className="overflow-auto scroll-smooth  ">
           {MessageArray.map((message: any) => {
             return message

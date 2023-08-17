@@ -7,6 +7,7 @@ interface ChatContextType {
   Available: boolean
   IsWrite: boolean
   OutGoingMessage: string
+  Room: string
   History: string
   MessageArray: any[]
   Theme: {
@@ -28,6 +29,7 @@ interface ChatContextType {
     }>
   >
   setHistory: React.Dispatch<React.SetStateAction<string>>
+  setRoom: React.Dispatch<React.SetStateAction<string>>
   setMessageArray: React.Dispatch<React.SetStateAction<any[]>>
   setInComingMessage: React.Dispatch<React.SetStateAction<string>>
   setTemp: React.Dispatch<React.SetStateAction<boolean>>
@@ -56,12 +58,14 @@ export const ChatContext = createContext<ChatContextType>({
   },
   OutGoingMessage: '',
   History: '',
+  Room: '',
   InComingMessage: '',
   setOutGoingMessage: () => {},
   setMessageArray: () => {},
   setTheme: () => {},
   setInComingMessage: () => {},
   AddOutGoing: () => {},
+  setRoom: () => {},
   AddInComing: () => {},
   setAvailable: () => {},
   setIsWrite: () => {},
@@ -76,6 +80,7 @@ export const ChatContextProvider: React.FC<ChatProviderProps> = ({ children }) =
   const [OutGoingMessage, setOutGoingMessage] = useState<string>('')
   const [InComingMessage, setInComingMessage] = useState<string>('')
   const [History, setHistory] = useState<string>('')
+  const [Room, setRoom] = useState<string>('')
   const [Theme, setTheme] = useState<{
     text_color: string
     buble_background: string
@@ -137,6 +142,8 @@ export const ChatContextProvider: React.FC<ChatProviderProps> = ({ children }) =
         setOutGoingMessage,
         MessageArray,
         setMessageArray,
+        Room,
+        setRoom,
         Available,
         setAvailable,
         Theme,
