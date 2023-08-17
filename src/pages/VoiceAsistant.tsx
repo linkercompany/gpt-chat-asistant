@@ -5,6 +5,8 @@ import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognitio
 import { IsWriting } from '../components/VoiceAsistant'
 import io from 'socket.io-client'
 import { useNavigate } from 'react-router-dom'
+import siyah from '../assets/siyah.svg'
+import beyaz from '../assets/beyaz.svg'
 
 export const ChatAsistant = () => {
   // 1
@@ -71,9 +73,10 @@ export const ChatAsistant = () => {
       callback: () => {
         setTheme({
           text_color: 'text-white',
-          buble_background: 'bg-[#333333]',
+          buble_background: 'bg-[#333333]/90',
           background: 'bg-black',
-          navbar_background: 'bg-[#333333]/50'
+          navbar_background: 'bg-[#333333]/50',
+          svg_image: 'dark'
         })
       }
     },
@@ -82,9 +85,10 @@ export const ChatAsistant = () => {
       callback: () => {
         setTheme({
           text_color: 'text-white',
-          buble_background: 'bg-[#333333]',
+          buble_background: 'bg-[#333333]/90',
           background: 'bg-black',
-          navbar_background: 'bg-[#333333]/50'
+          navbar_background: 'bg-[#333333]/50',
+          svg_image: 'dark'
         })
       }
     },
@@ -93,9 +97,10 @@ export const ChatAsistant = () => {
       callback: () => {
         setTheme({
           text_color: 'text-black',
-          buble_background: 'bg-[#EAEAEA]',
+          buble_background: 'bg-[#EAEAEA]/90',
           background: 'bg-white',
-          navbar_background: 'bg-[#EAEAEA]'
+          navbar_background: 'bg-[#EAEAEA]',
+          svg_image: 'light'
         })
       }
     },
@@ -104,9 +109,10 @@ export const ChatAsistant = () => {
       callback: () => {
         setTheme({
           text_color: 'text-black',
-          buble_background: 'bg-[#EAEAEA]',
+          buble_background: 'bg-[#EAEAEA]/90',
           background: 'bg-white',
-          navbar_background: 'bg-[#EAEAEA]'
+          navbar_background: 'bg-[#EAEAEA]',
+          svg_image: 'light'
         })
       }
     },
@@ -157,10 +163,12 @@ export const ChatAsistant = () => {
   }
 
   return (
-    <div className={`m-w-[100vw] m-h-[100vh] box-border ${Theme.text_color}`}>
-      <div className={`flex justify-center items-center  h-[15vh] ${Theme.navbar_background}`}>
-        <h1 className=" text-7xl">Kapsül ChatBot</h1>
-      </div>
+    <div
+      className={`m-w-[100vw] m-h-[100vh] box-border cursor-pointer  bg-center bg-no-repeat bg-[length:70vw_70vh] ${Theme.text_color}`}
+      style={{
+        backgroundImage: `url(${Theme.svg_image === 'light' ? siyah : beyaz})`
+      }}
+    >
       <>
         {/* <p className="text-white">{transcript}</p>
       <h1>---------------</h1>
@@ -175,7 +183,7 @@ export const ChatAsistant = () => {
         reset
       </Button> */}
       </>
-      <div className={` flex flex-col justify-end h-[80vh] ${Available ? '' : 'h-[70vh]'}	`}>
+      <div className={` flex flex-col justify-end h-[100vh] ${Available ? '' : 'h-[70vh]'}	`}>
         <div className="overflow-auto scroll-smooth  ">
           {MessageArray.map((message: any) => {
             return message

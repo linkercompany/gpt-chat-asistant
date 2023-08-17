@@ -1,7 +1,6 @@
-import React, { ReactNode, createContext, useCallback, useMemo, useState } from 'react'
 import { messageRequest } from '../utils'
 import { InComingBuble, IsWriting, OutGoingBuble } from '../components/VoiceAsistant'
-import { setTimeout } from 'timers/promises'
+import React, { ReactNode, createContext, useCallback, useMemo, useState } from 'react'
 
 interface ChatContextType {
   temp: boolean
@@ -15,6 +14,7 @@ interface ChatContextType {
     buble_background: string
     background: string
     navbar_background: string
+    svg_image: string
   }
   InComingMessage: string
   setOutGoingMessage: React.Dispatch<React.SetStateAction<string>>
@@ -24,6 +24,7 @@ interface ChatContextType {
       buble_background: string
       background: string
       navbar_background: string
+      svg_image: string
     }>
   >
   setHistory: React.Dispatch<React.SetStateAction<string>>
@@ -50,7 +51,8 @@ export const ChatContext = createContext<ChatContextType>({
     text_color: 'text-black]',
     buble_background: 'bg-[#EAEAEA]',
     background: 'bg-white',
-    navbar_background: 'bg-[#EAEAEA]-500/50'
+    navbar_background: 'bg-[#EAEAEA]-500/50',
+    svg_image: 'light'
   },
   OutGoingMessage: '',
   History: '',
@@ -79,11 +81,13 @@ export const ChatContextProvider: React.FC<ChatProviderProps> = ({ children }) =
     buble_background: string
     background: string
     navbar_background: string
+    svg_image: string
   }>({
     text_color: 'text-black',
-    buble_background: 'bg-[#EAEAEA]',
+    buble_background: 'bg-[#EAEAEA]/90',
     background: 'bg-white',
-    navbar_background: 'bg-[#EAEAEA]'
+    navbar_background: 'bg-[#EAEAEA]',
+    svg_image: 'light'
   })
   const [Available, setAvailable] = useState<boolean>(true)
   const [IsWrite, setIsWrite] = useState<boolean>(false)
@@ -103,7 +107,7 @@ export const ChatContextProvider: React.FC<ChatProviderProps> = ({ children }) =
   const AddOutGoing = async () => {
     if (OutGoingMessage.length === 0) return
     setAvailable(true)
-    let temp = await OutGoingMessage
+    let temp = OutGoingMessage.charAt(0).toUpperCase() + OutGoingMessage.slice(1)
     MessageArray.push(<OutGoingBuble message={temp} />)
     setMessageArray(MessageArray)
     setOutGoingMessage('')
