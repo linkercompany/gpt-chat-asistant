@@ -52,7 +52,7 @@ export const ChatAsistant = () => {
   socket.onmessage = (event) => {
     const receivedData = event.data
     console.log('Sunucudan gelen veri:', receivedData)
-    TimeOutSetter(receivedData)
+    setRoom(receivedData)
   }
 
   useEffect(() => {
