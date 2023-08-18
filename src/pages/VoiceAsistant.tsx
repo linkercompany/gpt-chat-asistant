@@ -42,11 +42,17 @@ export const ChatAsistant = () => {
     }
   }, [])
 
+  const TimeOutSetter = (receivedData: any) => {
+    setTimeout(() => {
+      setRoom(receivedData)
+    }, 3000)
+  }
+
   // Sunucudan mesaj alındığında çalışacak işlev
   socket.onmessage = (event) => {
     const receivedData = event.data
     console.log('Sunucudan gelen veri:', receivedData)
-    setRoom(receivedData)
+    TimeOutSetter(receivedData)
   }
 
   useEffect(() => {
@@ -59,7 +65,7 @@ export const ChatAsistant = () => {
         console.error('Bağlantı kesildi.')
       }
     }
-    window.location.href = `http://localhost:4000/Mehmet Alperen Yedik/${Room}`
+    window.location.href = `http://localhost:4000/n Fatih Güman/${Room}`
   }, [Room])
 
   // Bağlantı hatası oluştuğunda çalışacak işlev
