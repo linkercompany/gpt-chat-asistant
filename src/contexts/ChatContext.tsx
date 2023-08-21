@@ -103,7 +103,7 @@ export const ChatContextProvider: React.FC<ChatProviderProps> = ({ children }) =
     if (!Available) return
     setAvailable(false)
     let temp = await messageRequest(OutGoingMessage, History)
-    console.log(temp)
+    console.log(temp.message)
     setInComingMessage(temp.message.content)
     setHistory(temp.historyId)
   }

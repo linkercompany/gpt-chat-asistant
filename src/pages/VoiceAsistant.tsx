@@ -1,12 +1,13 @@
 import siyah from '../assets/siyah.svg'
 import beyaz from '../assets/beyaz.svg'
-import { useNavigate } from 'react-router-dom'
 import { ChatContext } from '../contexts/ChatContext'
 import { IsWriting } from '../components/VoiceAsistant'
 import { useContext, useEffect, useRef, useState } from 'react'
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition'
 
 export const ChatAsistant = () => {
+  const [once, setOnce] = useState(false)
+  // let dil = { default: false, lang: 'tr-TR', localService: true, name: 'Yelda', voiceURI: 'Yelda' }
   // 1
   const {
     OutGoingMessage,
@@ -25,6 +26,8 @@ export const ChatAsistant = () => {
     MessageArray,
     setMessageArray
   } = useContext(ChatContext)
+  const synth = window.speechSynthesis
+  const voices = synth.getVoices()
 
   const socket = new WebSocket('ws://kale.kapsulteknoloji.org/facetime/room/connect') // Sunucu adresine ve portuna göre değiştirin
 
@@ -42,11 +45,20 @@ export const ChatAsistant = () => {
     }
   }, [])
 
+  const TimeOutSetter = (receivedData: any) => {
+    setTimeout(() => {
+      setRoom(receivedData)
+    }, 3000)
+  }
+
   // Sunucudan mesaj alındığında çalışacak işlev
   socket.onmessage = (event) => {
     const receivedData = event.data
     console.log('Sunucudan gelen veri:', receivedData)
-    setRoom(receivedData)
+    if (!once) {
+      setOnce(true)
+      setRoom(receivedData)
+    }
   }
 
   useEffect(() => {
