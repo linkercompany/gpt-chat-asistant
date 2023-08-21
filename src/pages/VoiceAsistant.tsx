@@ -26,16 +26,10 @@ export const ChatAsistant = () => {
     MessageArray,
     setMessageArray
   } = useContext(ChatContext)
-  const synth = window.speechSynthesis
-  const voices = synth.getVoices()
 
   const socket = new WebSocket('ws://kale.kapsulteknoloji.org/facetime/room/connect') // Sunucu adresine ve portuna göre değiştirin
 
   useEffect(() => {
-    SpeechRecognition.startListening({
-      continuous: true,
-      language: 'tr'
-    })
     // Bağlantı başlatıldığında çalışacak işlev
     socket.onopen = () => {
       console.log('WebSocket bağlantısı başarıyla sağlandı.')
@@ -44,12 +38,6 @@ export const ChatAsistant = () => {
       socket.send('Merhaba, sunucu!')
     }
   }, [])
-
-  const TimeOutSetter = (receivedData: any) => {
-    setTimeout(() => {
-      setRoom(receivedData)
-    }, 3000)
-  }
 
   // Sunucudan mesaj alındığında çalışacak işlev
   socket.onmessage = (event) => {
@@ -80,144 +68,6 @@ export const ChatAsistant = () => {
   }
   // 2
   const ScrollingBottom = useRef<any>(null)
-  // 3
-  const commands = [
-    {
-      command: 'Hey kapsül *',
-      callback: (e: string) => {
-        resetTranscript()
-        setOutGoingMessage(e)
-        console.log(e)
-      }
-    },
-
-    {
-      command: 'Hey Kapsül *',
-      callback: (e: string) => {
-        resetTranscript()
-        console.log(e)
-
-        setOutGoingMessage(e)
-      }
-    },
-    {
-      command: 'hey Kapsül *',
-      callback: (e: string) => {
-        resetTranscript()
-        setOutGoingMessage(e)
-        console.log(e)
-      }
-    },
-    {
-      command: 'ey Kapsül *',
-      callback: (e: string) => {
-        resetTranscript()
-        setOutGoingMessage(e)
-        console.log(e)
-      }
-    },
-    {
-      command: 'hey kapsül *',
-      callback: (e: string) => {
-        resetTranscript()
-        setOutGoingMessage(e)
-        console.log(e)
-      }
-    },
-    {
-      command: 'ey kapsül *',
-      callback: (e: string) => {
-        resetTranscript()
-        setOutGoingMessage(e)
-        console.log(e)
-      }
-    },
-    {
-      command: 'Karanlık temaya geç',
-      callback: () => {
-        setTheme({
-          text_color: 'text-white',
-          buble_background: 'bg-[#333333]/90',
-          background: 'bg-black',
-          navbar_background: 'bg-[#333333]/50',
-          svg_image: 'dark'
-        })
-      }
-    },
-    {
-      command: 'Karanlık demeye geç',
-      callback: () => {
-        setTheme({
-          text_color: 'text-white',
-          buble_background: 'bg-[#333333]/90',
-          background: 'bg-black',
-          navbar_background: 'bg-[#333333]/50',
-          svg_image: 'dark'
-        })
-      }
-    },
-    {
-      command: 'Aydınlık temaya geç',
-      callback: () => {
-        setTheme({
-          text_color: 'text-black',
-          buble_background: 'bg-[#EAEAEA]/90',
-          background: 'bg-white',
-          navbar_background: 'bg-[#EAEAEA]',
-          svg_image: 'light'
-        })
-      }
-    },
-    {
-      command: 'Aydınlık demeye geç',
-      callback: () => {
-        setTheme({
-          text_color: 'text-black',
-          buble_background: 'bg-[#EAEAEA]/90',
-          background: 'bg-white',
-          navbar_background: 'bg-[#EAEAEA]',
-          svg_image: 'light'
-        })
-      }
-    },
-    {
-      command: '*',
-      callback: (e: string) => {
-        console.log(e)
-      }
-    },
-    {
-      command: 'temizle',
-      callback: () => {
-        resetTranscript()
-        setOutGoingMessage('')
-        setInComingMessage('')
-        console.log('temizle')
-
-        setHistory('')
-        setMessageArray([])
-      }
-    }
-  ]
-  // 4
-  const { resetTranscript, browserSupportsSpeechRecognition } = useSpeechRecognition({ commands })
-  // 5
-  useEffect(() => {
-    ScrollingBottom.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [InComingMessage, OutGoingMessage])
-
-  useEffect(() => {
-    AddOutGoing()
-    MessageRequest()
-  }, [OutGoingMessage])
-
-  useEffect(() => {
-    AddInComing()
-  }, [InComingMessage])
-
-  if (!browserSupportsSpeechRecognition) {
-    return <span>Browser doesn't support speech recognition.</span>
-  }
 
   return (
     <div
