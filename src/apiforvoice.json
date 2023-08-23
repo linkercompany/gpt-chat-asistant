@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "forvoice-396809",
+  "private_key_id": "1636cd1102ce1b9bb24561069b742f65664659c3",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCelXcBYspex62D\nWHxlkCgxrHg/dnJi9mV1ah9zm1btf0JF/5oi5tG0PqRlr2zSgL0EoXOeMr2EfqRh\ncb08DWu0KGEnn5h4Miml8xmu9f3oy4pA3041rWjqFfQ23JwVFRpQog7Gd6C+jTeh\nwtslI2u/d+y9ql9xrAMJE/QDP+Pxjl9Wirm+eFG8XoYCLEiRIuSUoQOYO6rFql8o\nPVDfkiy0PVwAvN8pL32i5v8ggeUWEfdgtQe5YQu22Q2O3BjqUMzUyDcS5MHFYPT3\nTNJ9ty6zqxV4etJHDhl39d9nlwklCJw/nmhv853h/MHfAXZfZ8VSYTSS3u+vimhQ\njgT3gyH7AgMBAAECggEAOCfHL1dzP+LHX5Zq3nAQu55OKnLgCIkl3lEI+CAOxSTm\nK/FZ/Hft1DzGbDeVemkaBdTCI0fmck+CF/t1vhkmhXIzDRvnmtBwjRIrixgSpGfG\n+jfY8wsH9rR1eSPfpVuGqPzp7H+aDT/mbkKY5WrIkdF+pJ77Ez6NCJ7nLmtmZTet\naSgny6eMCNOtP/dhAAFc6isYOLSKtbG88rUIXVSjPS7Gd9sZIdCWyLdebCr6AWTr\nNx+i1Yh3UR7Fep/E46YHRCk+gASZdeTdt981HChPc2WaV/IVJ3JnsfZs8KUdMRku\nZDnrVCxbXQ/n5PaHmG8Qpb02d4NcthR6jflSoN8BAQKBgQDPvMZxVSxLmYLWd0js\n/oD0yF7lhaCHHJg4YrK5h1ruVPY/put+FI0kgW0tRdAOYKaVgn3+jvNIrn830n47\nTlMZhWIpzGVLNYZB/G1VWU7OUfdBAZUYgryjuMrzLI+lYuNUnGjzPJ+1qxl7O6jD\nBHbK1RA2Bp3oXzKxjF1YfyAxgQKBgQDDbUWXL9fKyNBjky02LxguN6KrOsMUGpk+\nL5WFs6crpKyzU8njoqFZSCY/BhCVWFE+JhACD0+VDzBzT716YSbY+r1sHkydgesY\ngKjfsMZHKuvQ345m5R5iVsGnTqFxCZzDjplk2e9MCq7YZ7q9RcxgTyngJibLRDH6\n+mBjSZXZewKBgG/7Uv3E7BvUpLL3mlgm2V0apg0T+3TZ9TRv/+gDDwFqy1OEp21P\npsYG/tNozr7xWts9fK28YWjMp8dvsJxHnIQlYsUlaXUhZT4s1MMtYU3W4XIpaDXO\nQ+H9u2lanBSLOgBiUDDOfUlw8kt73X1C6sZsFFELQBQDPVB4WdlargABAoGAPzta\n+fkj9FwXeTCEv3RreYDM5GRl/FpC3SkeUx126JsmuftRZpMXa8D5hwjaUsg5uUct\nhM0Zbdx1S8owP6mxnSE8KwB+v7PqsonmmkIjVaGgnXvIIqjdtOnnTNAXUnDOxUOd\nhFEzqUIHosOlW1p7L2pN3VXa1YgiN9fNWjLUBoMCgYBNCk9K2odZhne7k5VkNALx\nruSaAKgviRIUhd9Ydh8YdXkk0d9HPL0P6LdPp+fXNhuSso+iKly6XzNafy8Jx9op\nI0tLxZeDcGDUQlNQlc+lV4wLgAqugsD27iMQ7tVjn518cBr3Z1HBWflOCeOZ3u4j\n4hOHtOBlGa8nR4G511ASDA==\n-----END PRIVATE KEY-----\n",
+  "client_email": "i-brahim-kaya@forvoice-396809.iam.gserviceaccount.com",
+  "client_id": "107880286035130819461",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/i-brahim-kaya%40forvoice-396809.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

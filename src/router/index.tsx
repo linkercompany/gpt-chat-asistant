@@ -10,7 +10,7 @@ export const Router = () => {
       element: <MainLayout />,
       children: [
         { path: '', element: <ChatAsistant /> },
-        { path: '/video-chat/:peerId', element: <VideoChat /> }
+        { path: '/video-chat', element: <VideoChat /> }
       ]
     },
     { path: '*', element: <Navigate to="/" replace /> }

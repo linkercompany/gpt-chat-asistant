@@ -1,44 +1,31 @@
 import React, { useEffect, useRef, useState } from 'react'
 import Peer from 'peerjs'
 import { useNavigate, useParams } from 'react-router-dom'
+import useSpeechToText from 'react-hook-speech-to-text'
 
 export const VideoChat = () => {
-  const videoRef = useRef<HTMLVideoElement | null>(null)
-  const peer = new Peer() // PeerJS nesnesi oluştur
+  const { error, interimResult, isRecording, results, startSpeechToText, stopSpeechToText } = useSpeechToText({
+    continuous: true,
+    crossBrowser: true,
+    googleCloudRecognitionConfig: {
+      languageCode: 'tr-TR'
+    },
+    googleApiKey: 'AIzaSyCKkxJ4z3bmDbP8tR0TFf-8_LDjZUChmeI',
+    useLegacyResults: false
+  })
 
-  useEffect(() => {
-    navigator.mediaDevices
-      .getUserMedia({ video: true, audio: true })
-      .then((stream) => {
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream
-        }
-
-        // Diğer kullanıcıyla bağlantı kur
-        peer.on('open', (peerId) => {
-          console.log('My Peer ID:', peerId)
-
-          // Çağrıları dinle
-          peer.on('call', (call) => {
-            console.log('Incoming call')
-            call.answer(stream) // Gelen çağrıyı yanıtla ve kendi medya akışını gönder
-            call.on('stream', (remoteStream) => {
-              // Diğer kullanıcının akışını alarak göster
-              if (videoRef.current) {
-                videoRef.current.srcObject = remoteStream
-              }
-            })
-          })
-        })
-      })
-      .catch((error) => {
-        console.error('Error accessing media devices:', error)
-      })
-  }, [])
+  if (error) return <p>Web Speech API is not available in this browser 🤷‍</p>
 
   return (
     <div>
-      <video ref={videoRef} autoPlay muted style={{ width: '100%', maxWidth: '600px' }}></video>
+      <h1>Recording: {isRecording.toString()}</h1>
+      <button onClick={isRecording ? stopSpeechToText : startSpeechToText}>{isRecording ? 'Stop Recording' : 'Start Recording'}</button>
+      <ul>
+        {results.map((result: any) => (
+          <li>{result.transcript}</li>
+        ))}
+        {interimResult && <li>{interimResult}</li>}
+      </ul>
     </div>
   )
 }
