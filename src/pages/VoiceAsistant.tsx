@@ -7,8 +7,6 @@ import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognitio
 
 export const ChatAsistant = () => {
   const [once, setOnce] = useState(false)
-  // let dil = { default: false, lang: 'tr-TR', localService: true, name: 'Yelda', voiceURI: 'Yelda' }
-  // 1
   const {
     OutGoingMessage,
     setOutGoingMessage,
@@ -26,11 +24,8 @@ export const ChatAsistant = () => {
     MessageArray,
     setMessageArray
   } = useContext(ChatContext)
-  const synth = window.speechSynthesis
-  const voices = synth.getVoices()
-
   const socket = new WebSocket('ws://kale.kapsulteknoloji.org/facetime/room/connect') // Sunucu adresine ve portuna göre değiştirin
-
+  // Speech başlatma ve socket açılışı
   useEffect(() => {
     SpeechRecognition.startListening({
       continuous: true,
@@ -44,13 +39,6 @@ export const ChatAsistant = () => {
       socket.send('Merhaba, sunucu!')
     }
   }, [])
-
-  const TimeOutSetter = (receivedData: any) => {
-    setTimeout(() => {
-      setRoom(receivedData)
-    }, 3000)
-  }
-
   // Sunucudan mesaj alındığında çalışacak işlev
   socket.onmessage = (event) => {
     const receivedData = event.data
@@ -60,7 +48,6 @@ export const ChatAsistant = () => {
       setRoom(receivedData)
     }
   }
-
   useEffect(() => {
     if (Room.length === 0) return
     // Bağlantı kapatıldığında çalışacak işlev
@@ -71,16 +58,13 @@ export const ChatAsistant = () => {
         console.error('Bağlantı kesildi.')
       }
     }
-    window.location.href = `http://localhost:4000/n Fatih Güman/${Room}`
+    window.location.href = `http://localhost:4000/Fatih Güman/${Room}`
   }, [Room])
-
   // Bağlantı hatası oluştuğunda çalışacak işlev
   socket.onerror = (error) => {
     console.error('Hata oluştu:', error)
   }
-  // 2
-  const ScrollingBottom = useRef<any>(null)
-  // 3
+  // Komutlar
   const commands = [
     {
       command: 'Hey kapsül *',
@@ -199,22 +183,22 @@ export const ChatAsistant = () => {
       }
     }
   ]
-  // 4
+  // Speech to text tanımlama kısmı
   const { resetTranscript, browserSupportsSpeechRecognition } = useSpeechRecognition({ commands })
-  // 5
+  // Yeni mesaj geldiğinde alt kısma kaydırır
+  const ScrollingBottom = useRef<any>(null)
   useEffect(() => {
     ScrollingBottom.current?.scrollIntoView({ behavior: 'smooth' })
   }, [InComingMessage, OutGoingMessage])
-
+  // Giden mesaj
   useEffect(() => {
     AddOutGoing()
     MessageRequest()
   }, [OutGoingMessage])
-
+  // Gelen mesaj
   useEffect(() => {
     AddInComing()
   }, [InComingMessage])
-
   if (!browserSupportsSpeechRecognition) {
     return <span>Browser doesn't support speech recognition.</span>
   }
