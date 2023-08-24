@@ -97,15 +97,12 @@ export const ChatContextProvider: React.FC<ChatProviderProps> = ({ children }) =
   const [Available, setAvailable] = useState<boolean>(true)
   const [IsWrite, setIsWrite] = useState<boolean>(false)
 
-  // New request for GPT
-  const MessageRequest = async () => {
-    if (!(OutGoingMessage.length > 0)) return
-    if (!Available) return
-    setAvailable(false)
-    let temp = await messageRequest(OutGoingMessage, History)
-    console.log(temp.message)
-    setInComingMessage(temp.message.content)
-    setHistory(temp.historyId)
+  const SetMessage = (_results: any) => {
+    if (_results.length === 0) return
+    let temp: any | undefined = _results[_results.length - 1]
+    if (temp.transcript.startsWith('Hey kapsül', 'ey kapsül', 'Hey Kapsül')) {
+      setOutGoingMessage(temp.transcript.slice(10, temp.transcript.length))
+    }
   }
 
   // Add OutGoing Chat Html Element
@@ -115,8 +112,19 @@ export const ChatContextProvider: React.FC<ChatProviderProps> = ({ children }) =
     let temp = OutGoingMessage.charAt(0).toUpperCase() + OutGoingMessage.slice(1)
     MessageArray.push(<OutGoingBuble message={temp} />)
     setMessageArray(MessageArray)
-    setOutGoingMessage('')
+    // setOutGoingMessage('')
     setIsWrite(true)
+  }
+
+  // New request for GPT
+  const MessageRequest = async () => {
+    if (!(OutGoingMessage.length > 0)) return
+    if (!Available) return
+    setAvailable(false)
+    let temp = await messageRequest(OutGoingMessage, History)
+    console.log(temp.message)
+    setInComingMessage(temp.message.content)
+    setHistory(temp.historyId)
   }
 
   // Add İnComing Chat Html Element
@@ -129,6 +137,7 @@ export const ChatContextProvider: React.FC<ChatProviderProps> = ({ children }) =
     setInComingMessage('')
     setIsWrite(false)
   }
+
   return (
     <ChatContext.Provider
       value={{
