@@ -24,7 +24,7 @@ export const ChatAsistant = () => {
     MessageArray,
     setMessageArray
   } = useContext(ChatContext)
-  const socket = new WebSocket('ws://kale.kapsulteknoloji.org/facetime/room/connect') // Sunucu adresine ve portuna göre değiştirin
+  // const socket = new WebSocket('ws://kale.kapsulteknoloji.org/facetime/room/connect') // Sunucu adresine ve portuna göre değiştirin
   // Speech başlatma ve socket açılışı
   useEffect(() => {
     SpeechRecognition.startListening({
@@ -32,37 +32,50 @@ export const ChatAsistant = () => {
       language: 'tr'
     })
     // Bağlantı başlatıldığında çalışacak işlev
-    socket.onopen = () => {
-      console.log('WebSocket bağlantısı başarıyla sağlandı.')
+    // socket.onopen = () => {
+    //   console.log('WebSocket bağlantısı başarıyla sağlandı.')
 
-      // Sunucuya veri gönderme
-      socket.send('Merhaba, sunucu!')
-    }
+    //   // Sunucuya veri gönderme
+    //   socket.send('Merhaba, sunucu!')
+    // }
   }, [])
   // Sunucudan mesaj alındığında çalışacak işlev
-  socket.onmessage = (event) => {
-    const receivedData = event.data
-    console.log('Sunucudan gelen veri:', receivedData)
-    if (!once) {
-      setOnce(true)
-      setRoom(receivedData)
-    }
-  }
-  useEffect(() => {
-    if (Room.length === 0) return
-    // Bağlantı kapatıldığında çalışacak işlev
-    socket.onclose = (event) => {
-      if (event.wasClean) {
-        console.log(`Bağlantı temiz bir şekilde kapatıldı, kod: ${event.code}, neden: ${event.reason}`)
-      } else {
-        console.error('Bağlantı kesildi.')
-      }
-    }
-    window.location.href = `http://localhost:4000/Fatih Güman/${Room}`
-  }, [Room])
+  // socket.onmessage = (event) => {
+  //   const receivedData = event.data
+  //   console.log('Sunucudan gelen veri:', receivedData)
+  //   if (!once) {
+  //     setOnce(true)
+  //     setRoom(receivedData)
+  //   }
+  // }
+  // useEffect(() => {
+  //   if (Room.length === 0) return
+  //   // Bağlantı kapatıldığında çalışacak işlev
+  //   socket.onclose = (event) => {
+  //     if (event.wasClean) {
+  //       console.log(`Bağlantı temiz bir şekilde kapatıldı, kod: ${event.code}, neden: ${event.reason}`)
+  //     } else {
+  //       console.error('Bağlantı kesildi.')
+  //     }
+  //   }
+  //   window.location.href = `http://localhost:4000/Fatih Güman/${Room}`
+  // }, [Room])
   // Bağlantı hatası oluştuğunda çalışacak işlev
-  socket.onerror = (error) => {
-    console.error('Hata oluştu:', error)
+  // socket.onerror = (error) => {
+  //   console.error('Hata oluştu:', error)
+  // }
+
+  function ReadOut(message: string) {
+    const speech = new SpeechSynthesisUtterance()
+    speech.text = message
+    // const allVoices = speechSynthesis.getVoices()
+    // speech.voice = allVoices[103]
+    // console.log(allVoices)
+    // speech.volume = 100
+    speech.rate = 0.95
+    speech.lang = 'tr-TR'
+    window.speechSynthesis.speak(speech)
+    console.log('konuşuyor')
   }
   // Komutlar
   const commands = [
@@ -198,6 +211,7 @@ export const ChatAsistant = () => {
   // Gelen mesaj
   useEffect(() => {
     AddInComing()
+    ReadOut(InComingMessage)
   }, [InComingMessage])
   if (!browserSupportsSpeechRecognition) {
     return <span>Browser doesn't support speech recognition.</span>
