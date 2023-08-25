@@ -173,7 +173,7 @@ export const ChatAsistant = () => {
       }}
     >
       {/* <button onClick={isRecording ? stopSpeechToText : startSpeechToText}>{isRecording ? 'Stop Recording' : 'Start Recording'}</button> */}
-      <div className={` flex flex-col justify-end  ${Available ? 'h-[95vh]' : 'h-[90vh]'}	`}>
+      <div className={` flex flex-col justify-end  ${Available ? 'h-[100vh]' : 'h-[95vh]'}	`}>
         <div className="overflow-auto scroll-smooth  ">
           {MessageArray.map((message: any) => {
             return message
@@ -196,13 +196,13 @@ export const ChatAsistant = () => {
       >
         Ses Kapa
       </Button> */}
-      <Button
+      {/* <Button
         onClick={() => {
           ReadOut('merhaba benim adım Ema nasıl yardımcı olabilirim')
         }}
       >
         Konuş
-      </Button>
+      </Button> */}
     </div>
   )
 }

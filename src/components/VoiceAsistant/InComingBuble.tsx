@@ -1,4 +1,3 @@
-import { message } from 'antd'
 import 'animate.css'
 
 import React, { useContext } from 'react'

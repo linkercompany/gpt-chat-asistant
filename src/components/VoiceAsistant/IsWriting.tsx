@@ -1,8 +1,5 @@
 import 'animate.css'
-import { EllipsisOutlined } from '@ant-design/icons'
 import React, { useContext } from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCircle } from '@fortawesome/free-solid-svg-icons'
 import { ChatContext } from '../../contexts/ChatContext'
 
 export const IsWriting = () => {
