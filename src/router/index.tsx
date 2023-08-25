@@ -1,7 +1,7 @@
 import { Navigate, useRoutes } from "react-router-dom";
 
 import { MainLayout } from "../layouts";
-import { ChatAsistant, VideoChat } from '../pages'
+import { ChatAssistant, VideoChat } from '../pages'
 
 export const Router = () => {
   return useRoutes([
@@ -9,7 +9,7 @@ export const Router = () => {
       path: '',
       element: <MainLayout />,
       children: [
-        { path: '', element: <ChatAsistant /> },
+        { path: '', element: <ChatAssistant /> },
         { path: '/video-chat', element: <VideoChat /> }
       ]
     },

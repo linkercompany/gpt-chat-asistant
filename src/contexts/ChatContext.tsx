@@ -1,6 +1,7 @@
 import { messageRequest } from '../utils'
 import { InComingBuble, IsWriting, OutGoingBuble } from '../components/VoiceAsistant'
 import React, { ReactNode, createContext, useCallback, useMemo, useState } from 'react'
+import useSpeechToText from 'react-hook-speech-to-text'
 
 interface ChatContextType {
   temp: boolean
@@ -9,6 +10,7 @@ interface ChatContextType {
   OutGoingMessage: string
   Room: string
   History: string
+  Speech2Text: any
   MessageArray: any[]
   Theme: {
     text_color: string
@@ -71,7 +73,8 @@ export const ChatContext = createContext<ChatContextType>({
   setIsWrite: () => {},
   setHistory: () => {},
   setTemp: () => {},
-  MessageRequest: () => {}
+  MessageRequest: () => {},
+  Speech2Text: () => {}
 })
 
 export const ChatContextProvider: React.FC<ChatProviderProps> = ({ children }) => {
@@ -97,13 +100,17 @@ export const ChatContextProvider: React.FC<ChatProviderProps> = ({ children }) =
   const [Available, setAvailable] = useState<boolean>(true)
   const [IsWrite, setIsWrite] = useState<boolean>(false)
 
-  const SetMessage = (_results: any) => {
-    if (_results.length === 0) return
-    let temp: any | undefined = _results[_results.length - 1]
-    if (temp.transcript.startsWith('Hey kapsül', 'ey kapsül', 'Hey Kapsül')) {
-      setOutGoingMessage(temp.transcript.slice(10, temp.transcript.length))
-    }
-  }
+  const Speech2Text = useSpeechToText({
+    continuous: true,
+    crossBrowser: true,
+    googleCloudRecognitionConfig: {
+      languageCode: 'tr-TR'
+    },
+    googleApiKey: 'AIzaSyCKkxJ4z3bmDbP8tR0TFf-8_LDjZUChmeI',
+    useLegacyResults: false,
+    timeout: 1000000
+    // useOnlyGoogleCloud: true
+  })
 
   // Add OutGoing Chat Html Element
   const AddOutGoing = async () => {
@@ -161,7 +168,8 @@ export const ChatContextProvider: React.FC<ChatProviderProps> = ({ children }) =
         InComingMessage,
         setInComingMessage,
         History,
-        setHistory
+        setHistory,
+        Speech2Text
       }}
     >
       {children}
