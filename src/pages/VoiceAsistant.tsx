@@ -36,6 +36,7 @@ export const ChatAsistant = () => {
     googleApiKey: 'AIzaSyCKkxJ4z3bmDbP8tR0TFf-8_LDjZUChmeI',
     useLegacyResults: false,
     timeout: 1000000
+    // useOnlyGoogleCloud: true
   })
 
   // const socket = new WebSocket('ws://kale.kapsulteknoloji.org/facetime/room/connect') // Sunucu adresine ve portuna göre değiştirin
@@ -81,9 +82,9 @@ export const ChatAsistant = () => {
   function ReadOut(message: string) {
     const speech = new SpeechSynthesisUtterance()
     speech.text = message
-    const allVoices = speechSynthesis.getVoices()
+    // const allVoices = speechSynthesis.getVoices()
     // speech.voice = allVoices[103]
-    console.log(allVoices)
+    // console.log(allVoices)
     // speech.volume = 100
     speech.rate = 0.95
     speech.lang = 'tr-TR'
@@ -109,12 +110,21 @@ export const ChatAsistant = () => {
     ReadOut(InComingMessage)
   }, [InComingMessage])
 
-  // Promptları backende uygun hale getirirx
+  // Promptları backende uygun hale getirir
   const SetMessage = (_results: any) => {
-    if (results.length !== 0) {
+    if (_results.length !== 0) {
       let temp: any | undefined = _results[_results.length - 1]
       if (temp.transcript) {
-        if (temp.transcript.startsWith('Hey kapsül', 'ey kapsül', 'Hey Kapsül', 'iyi kapsül', 'Ey kapsül', 'kapsül', 'ilk Kapsül', 'e kapsül')) {
+        if (
+          temp.transcript.startsWith('Hey kapsül') ||
+          temp.transcript.startsWith('ey kapsül') ||
+          temp.transcript.startsWith('Hey Kapsül') ||
+          temp.transcript.startsWith('iyi kapsül') ||
+          temp.transcript.startsWith('Ey kapsül') ||
+          temp.transcript.includes('kapsül') ||
+          temp.transcript.startsWith('ilk Kapsül') ||
+          temp.transcript.startsWith('e kapsül')
+        ) {
           setOutGoingMessage(temp.transcript.slice(10, temp.transcript.length))
         }
       }
@@ -128,6 +138,7 @@ export const ChatAsistant = () => {
   console.log(results[results.length - 1])
 
   if (error) {
+    console.log(error)
     return <p>{error}</p>
   }
 
@@ -161,7 +172,7 @@ export const ChatAsistant = () => {
         backgroundImage: `url(${Theme.svg_image === 'light' ? siyah : beyaz})`
       }}
     >
-      ;<button onClick={isRecording ? stopSpeechToText : startSpeechToText}>{isRecording ? 'Stop Recording' : 'Start Recording'}</button>
+      {/* <button onClick={isRecording ? stopSpeechToText : startSpeechToText}>{isRecording ? 'Stop Recording' : 'Start Recording'}</button> */}
       <div className={` flex flex-col justify-end  ${Available ? 'h-[95vh]' : 'h-[90vh]'}	`}>
         <div className="overflow-auto scroll-smooth  ">
           {MessageArray.map((message: any) => {
@@ -185,17 +196,13 @@ export const ChatAsistant = () => {
       >
         Ses Kapa
       </Button> */}
-      {/* {InComingMessage.length === 0 ? (
-        ''
-      ) : (
-        <Button
-          onClick={() => {
-            ReadOut('merhaba benim adım Ema    nasıl yardımcı olabilirim')
-          }}
-        >
-          Konuş
-        </Button>
-      )} */}
+      <Button
+        onClick={() => {
+          ReadOut('merhaba benim adım Ema nasıl yardımcı olabilirim')
+        }}
+      >
+        Konuş
+      </Button>
     </div>
   )
 }
