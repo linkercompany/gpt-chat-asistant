@@ -5,8 +5,6 @@ import useSpeechToText from 'react-hook-speech-to-text'
 
 interface ChatContextType {
   temp: boolean
-  Available: boolean
-  IsWrite: boolean
   OutGoingMessage: string
   Room: string
   History: string
@@ -35,11 +33,10 @@ interface ChatContextType {
   setMessageArray: React.Dispatch<React.SetStateAction<any[]>>
   setInComingMessage: React.Dispatch<React.SetStateAction<string>>
   setTemp: React.Dispatch<React.SetStateAction<boolean>>
-  setAvailable: React.Dispatch<React.SetStateAction<boolean>>
-  setIsWrite: React.Dispatch<React.SetStateAction<boolean>>
   MessageRequest: () => void
   AddOutGoing: () => void
   AddInComing: () => void
+  SetMessage: (_results: any[]) => void
 }
 
 interface ChatProviderProps {
@@ -48,8 +45,6 @@ interface ChatProviderProps {
 
 export const ChatContext = createContext<ChatContextType>({
   temp: false,
-  Available: true,
-  IsWrite: false,
   MessageArray: [],
   Theme: {
     text_color: 'text-black]',
@@ -69,21 +64,20 @@ export const ChatContext = createContext<ChatContextType>({
   AddOutGoing: () => {},
   setRoom: () => {},
   AddInComing: () => {},
-  setAvailable: () => {},
-  setIsWrite: () => {},
   setHistory: () => {},
   setTemp: () => {},
   MessageRequest: () => {},
-  Speech2Text: () => {}
+  Speech2Text: () => {},
+  SetMessage: () => {}
 })
 
 export const ChatContextProvider: React.FC<ChatProviderProps> = ({ children }) => {
+  const [Room, setRoom] = useState<string>('')
   const [temp, setTemp] = useState<boolean>(false)
+  const [History, setHistory] = useState<string>('')
   const [MessageArray, setMessageArray] = useState<any[]>([])
   const [OutGoingMessage, setOutGoingMessage] = useState<string>('')
   const [InComingMessage, setInComingMessage] = useState<string>('')
-  const [History, setHistory] = useState<string>('')
-  const [Room, setRoom] = useState<string>('')
   const [Theme, setTheme] = useState<{
     text_color: string
     buble_background: string
@@ -97,9 +91,8 @@ export const ChatContextProvider: React.FC<ChatProviderProps> = ({ children }) =
     navbar_background: 'bg-[#EAEAEA]',
     svg_image: 'light'
   })
-  const [Available, setAvailable] = useState<boolean>(true)
-  const [IsWrite, setIsWrite] = useState<boolean>(false)
 
+  // Speech to text libary
   const Speech2Text = useSpeechToText({
     continuous: true,
     crossBrowser: true,
@@ -112,37 +105,94 @@ export const ChatContextProvider: React.FC<ChatProviderProps> = ({ children }) =
     // useOnlyGoogleCloud: true
   })
 
-  // Add OutGoing Chat Html Element
-  const AddOutGoing = async () => {
-    if (OutGoingMessage.length === 0) return
-    setAvailable(true)
-    let temp = OutGoingMessage.charAt(0).toUpperCase() + OutGoingMessage.slice(1)
-    MessageArray.push(<OutGoingBuble message={temp} />)
-    setMessageArray(MessageArray)
-    // setOutGoingMessage('')
-    setIsWrite(true)
-  }
-
   // New request for GPT
   const MessageRequest = async () => {
-    if (!(OutGoingMessage.length > 0)) return
-    if (!Available) return
-    setAvailable(false)
+    if (!(OutGoingMessage.length > 0) || !Speech2Text.isRecording) return
     let temp = await messageRequest(OutGoingMessage, History)
     console.log(temp.message)
     setInComingMessage(temp.message.content)
     setHistory(temp.historyId)
   }
 
+  // Add OutGoing Chat Html Element
+  const AddOutGoing = () => {
+    if (OutGoingMessage.length === 0) return
+    Speech2Text.stopSpeechToText()
+    let temp = OutGoingMessage.charAt(0).toUpperCase() + OutGoingMessage.slice(1)
+    MessageArray.push(<OutGoingBuble message={temp} />)
+    setMessageArray(MessageArray)
+    setOutGoingMessage('')
+    MessageRequest()
+  }
+  // Sesli konuşma
+  function ReadOut(message: string) {
+    const speech = new SpeechSynthesisUtterance()
+    speech.text = message
+    const allVoices = speechSynthesis.getVoices()
+    console.log(allVoices)
+    // speech.voice = allVoices[103]
+    // speech.volume = 100
+    speech.rate = 0.95
+    speech.lang = 'tr-TR'
+    window.speechSynthesis.speak(speech)
+    console.log('konuşuyor')
+  }
+
   // Add İnComing Chat Html Element
   const AddInComing = () => {
     if (InComingMessage.length === 0) return
-    setAvailable(true)
+    Speech2Text.startSpeechToText()
     let temp = InComingMessage
     MessageArray.push(<InComingBuble message={temp} />)
     setMessageArray(MessageArray)
     setInComingMessage('')
-    setIsWrite(false)
+    ReadOut(InComingMessage)
+  }
+
+  // Ui komutları
+  const SetCommand = (temp: string) => {
+    if (temp === 'karanlık temaya geç' || temp === 'karanlık demeye geç') {
+      setTheme({
+        text_color: 'text-white',
+        buble_background: 'bg-[#333333]/90',
+        background: 'bg-black',
+        navbar_background: 'bg-[#333333]/50',
+        svg_image: 'dark'
+      })
+    } else if (temp === 'aydınlık temaya geç' || temp === 'aydınlık demeye geç') {
+      setTheme({
+        text_color: 'text-black',
+        buble_background: 'bg-[#EAEAEA]/90',
+        background: 'bg-white',
+        navbar_background: 'bg-[#EAEAEA]',
+        svg_image: 'light'
+      })
+    } else if (temp === 'temizle') {
+      setOutGoingMessage('')
+      setInComingMessage('')
+      setHistory('')
+      setMessageArray([])
+      window.speechSynthesis.cancel()
+    } else if (temp === 'tamam') {
+      window.speechSynthesis.cancel()
+    }
+  }
+
+  // Promptları backende uygun hale getirir
+  const SetMessage = (_results: any[]) => {
+    const commandForGpt = ['Hey kapsül', 'Ey kapsül', 'EKAP sim', 'ey kapsül', 'iyi kapsül', 'ilk Kapsül', 'e kapsül']
+
+    if (_results.length === 0) return
+    let temp: any | undefined = _results[_results.length - 1].transcript
+    console.log('Transcript = ', temp)
+
+    commandForGpt.forEach((command: string) => {
+      if (temp.startsWith(command)) {
+        setOutGoingMessage(temp.slice(command.length + 1, temp.length))
+      } else {
+        SetCommand(temp)
+      }
+    })
   }
 
   return (
@@ -151,8 +201,6 @@ export const ChatContextProvider: React.FC<ChatProviderProps> = ({ children }) =
         temp,
         setTemp,
         AddOutGoing,
-        IsWrite,
-        setIsWrite,
         AddInComing,
         OutGoingMessage,
         setOutGoingMessage,
@@ -160,10 +208,9 @@ export const ChatContextProvider: React.FC<ChatProviderProps> = ({ children }) =
         setMessageArray,
         Room,
         setRoom,
-        Available,
-        setAvailable,
         Theme,
         setTheme,
+        SetMessage,
         MessageRequest,
         InComingMessage,
         setInComingMessage,
