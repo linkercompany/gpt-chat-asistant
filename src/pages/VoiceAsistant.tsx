@@ -1,6 +1,8 @@
 import { Button } from 'antd'
 import siyah from '../assets/siyah.svg'
 import beyaz from '../assets/beyaz.svg'
+import redDot from '../assets/redDot.png'
+
 import { ChatContext } from '../contexts/ChatContext'
 import { IsWriting } from '../components/VoiceAsistant'
 import { useContext, useEffect, useRef, useState } from 'react'
@@ -14,6 +16,7 @@ export const ChatAssistant = () => {
   useEffect(() => {
     setTimeout(() => {
       Speech2Text.startSpeechToText()
+      AddInComing("Merhaba benim adım Ema, size yardımcı olmak için buradayım. 'Hey Ema' komutu ile benimle konuşabilirsiniz.")
     }, 1000)
   }, [])
 
@@ -24,7 +27,7 @@ export const ChatAssistant = () => {
 
   // Gelen mesaj
   useEffect(() => {
-    AddInComing()
+    AddInComing(InComingMessage)
   }, [InComingMessage])
 
   // Sürekli aşşağı kaymasını sağlar
@@ -49,9 +52,13 @@ export const ChatAssistant = () => {
         backgroundImage: `url(${Theme.svg_image === 'light' ? siyah : beyaz})`
       }}
     >
-      <button className="absolute text-red-700 text-2xl" onClick={Speech2Text.isRecording ? Speech2Text.stopSpeechToText : Speech2Text.startSpeechToText}>
-        {Speech2Text.isRecording ? ' *' : ''}
-      </button>
+      <span
+        style={{
+          backgroundImage: `url(${Speech2Text.isRecording ? redDot : ''})`
+        }}
+        className=" mt-[0.5vh] ml-[0.5vh] absolute  h-[1vh] w-[1vh] box-border cursor-pointer  bg-center bg-no-repeat bg-[length:1vw_1vw]"
+        // onClick={Speech2Text.isRecording ? Speech2Text.stopSpeechToText : Speech2Text.startSpeechToText}
+      />
       <div className={` flex flex-col justify-end  ${Speech2Text.isRecording ? 'h-[98vh]' : 'h-[93vh]'}	`}>
         <div className="overflow-auto scroll-smooth  ">
           {MessageArray.map((message: any) => {

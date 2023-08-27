@@ -1,7 +1,7 @@
 import { messageRequest } from '../utils'
+import useSpeechToText from 'react-hook-speech-to-text'
 import { InComingBuble, IsWriting, OutGoingBuble } from '../components/VoiceAsistant'
 import React, { ReactNode, createContext, useCallback, useMemo, useState } from 'react'
-import useSpeechToText from 'react-hook-speech-to-text'
 
 interface ChatContextType {
   temp: boolean
@@ -35,7 +35,7 @@ interface ChatContextType {
   setTemp: React.Dispatch<React.SetStateAction<boolean>>
   MessageRequest: () => void
   AddOutGoing: () => void
-  AddInComing: () => void
+  AddInComing: (message: string) => void
   SetMessage: (_results: any[]) => void
 }
 
@@ -63,7 +63,7 @@ export const ChatContext = createContext<ChatContextType>({
   setInComingMessage: () => {},
   AddOutGoing: () => {},
   setRoom: () => {},
-  AddInComing: () => {},
+  AddInComing: (message: string) => {},
   setHistory: () => {},
   setTemp: () => {},
   MessageRequest: () => {},
@@ -139,10 +139,10 @@ export const ChatContextProvider: React.FC<ChatProviderProps> = ({ children }) =
   }
 
   // Add İnComing Chat Html Element
-  const AddInComing = () => {
-    if (InComingMessage.length === 0) return
+  const AddInComing = (message: string) => {
+    if (message.length === 0) return
     Speech2Text.startSpeechToText()
-    let temp = InComingMessage
+    let temp = message
     MessageArray.push(<InComingBuble message={temp} />)
     setMessageArray(MessageArray)
     setInComingMessage('')
