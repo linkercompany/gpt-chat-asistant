@@ -1,9 +1,9 @@
-import { axios } from '..'
+import { axiosForGptConnector } from '..'
 
 export const messageRequest = async (message: string, historyID?: string) => {
   if (historyID?.length !== 0) {
     try {
-      const res = await axios.post(
+      const res = await axiosForGptConnector.post(
         `/openai/interactiveChat`,
         {
           message: { content: message, role: 'user' },
@@ -21,7 +21,7 @@ export const messageRequest = async (message: string, historyID?: string) => {
     }
   } else {
     try {
-      const res = await axios.post(
+      const res = await axiosForGptConnector.post(
         '/openai/interactiveChat',
         {
           message: { content: message, role: 'user' },

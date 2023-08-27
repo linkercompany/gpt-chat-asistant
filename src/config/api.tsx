@@ -1,2 +1,2 @@
-// export const apiUrl = `http://localhost:8000`
-export const apiUrl = `https://kale.kapsulteknoloji.org/gptconnector`
+export const textToSpeechUrl = `https://kale.kapsulteknoloji.org/text-to-speech`
+export const gptConnectorUrl = `https://kale.kapsulteknoloji.org/gptconnector`

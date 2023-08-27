@@ -1,4 +1,5 @@
-import { messageRequest } from '../utils'
+import ReactPlayer from 'react-player'
+import { messageRequest, textToSpeech } from '../utils'
 import useSpeechToText from 'react-hook-speech-to-text'
 import { InComingBuble, IsWriting, OutGoingBuble } from '../components/VoiceAsistant'
 import React, { ReactNode, createContext, useCallback, useMemo, useState } from 'react'
@@ -8,6 +9,7 @@ interface ChatContextType {
   OutGoingMessage: string
   Room: string
   History: string
+  Audio: any
   Speech2Text: any
   MessageArray: any[]
   Theme: {
@@ -31,6 +33,7 @@ interface ChatContextType {
   setHistory: React.Dispatch<React.SetStateAction<string>>
   setRoom: React.Dispatch<React.SetStateAction<string>>
   setMessageArray: React.Dispatch<React.SetStateAction<any[]>>
+  setAudio: React.Dispatch<React.SetStateAction<any>>
   setInComingMessage: React.Dispatch<React.SetStateAction<string>>
   setTemp: React.Dispatch<React.SetStateAction<boolean>>
   MessageRequest: () => void
@@ -56,10 +59,12 @@ export const ChatContext = createContext<ChatContextType>({
   OutGoingMessage: '',
   History: '',
   Room: '',
+  Audio: null,
   InComingMessage: '',
   setOutGoingMessage: () => {},
   setMessageArray: () => {},
   setTheme: () => {},
+  setAudio: () => {},
   setInComingMessage: () => {},
   AddOutGoing: () => {},
   setRoom: () => {},
@@ -75,6 +80,7 @@ export const ChatContextProvider: React.FC<ChatProviderProps> = ({ children }) =
   const [Room, setRoom] = useState<string>('')
   const [temp, setTemp] = useState<boolean>(false)
   const [History, setHistory] = useState<string>('')
+  const [Audio, setAudio] = useState<any>()
   const [MessageArray, setMessageArray] = useState<any[]>([])
   const [OutGoingMessage, setOutGoingMessage] = useState<string>('')
   const [InComingMessage, setInComingMessage] = useState<string>('')
@@ -105,17 +111,9 @@ export const ChatContextProvider: React.FC<ChatProviderProps> = ({ children }) =
     // useOnlyGoogleCloud: true
   })
 
-  function getCurrentTimestamp() {
+  // Mesaj baloncukları için uniq key
+  const getCurrentTimestamp = () => {
     return Math.floor(Date.now() / 1000) // Şu anki zaman damgasını saniye cinsinden alır
-  }
-
-  // New request for GPT
-  const MessageRequest = async () => {
-    if (!(OutGoingMessage.length > 0) || !Speech2Text.isRecording) return
-    let temp = await messageRequest(OutGoingMessage, History)
-    console.log(temp.message)
-    setInComingMessage(temp.message.content)
-    setHistory(temp.historyId)
   }
 
   // Add OutGoing Chat Html Element
@@ -129,18 +127,35 @@ export const ChatContextProvider: React.FC<ChatProviderProps> = ({ children }) =
     MessageRequest()
   }
 
-  // Sesli konuşma
-  function ReadOut(message: string) {
-    const speech = new SpeechSynthesisUtterance()
-    speech.text = message
-    const allVoices = speechSynthesis.getVoices()
-    console.log(allVoices)
-    // speech.voice = allVoices[103]
-    // speech.volume = 100
-    speech.rate = 0.95
-    speech.lang = 'tr-TR'
-    window.speechSynthesis.speak(speech)
-    console.log('konuşuyor')
+  // Buffer to Audio
+  const SoundPlayer = (soundData: any) => {
+    const bufferToArrayBuffer = (buffer: number[]): ArrayBuffer => {
+      return new Uint8Array(buffer).buffer
+    }
+    const arrayBufferToUrl = (buffer: ArrayBuffer): string => {
+      const blob = new Blob([buffer], { type: 'audio/wav' })
+      return URL.createObjectURL(blob)
+    }
+    return arrayBufferToUrl(bufferToArrayBuffer(soundData))
+  }
+
+  // Text to speech Api
+  const TextToSpeech = async (message: string) => {
+    let temp = await textToSpeech(message)
+    if (!temp) return
+    console.log(temp)
+    let soundUrl = SoundPlayer(temp.result.data)
+    setAudio(<ReactPlayer className="hidden" url={soundUrl} controls playing />)
+  }
+
+  // New request for GPT
+  const MessageRequest = async () => {
+    if (!(OutGoingMessage.length > 0) || !Speech2Text.isRecording) return
+    let temp = await messageRequest(OutGoingMessage, History)
+    TextToSpeech(temp.message.content)
+    console.log(temp.message)
+    setInComingMessage(temp.message.content)
+    setHistory(temp.historyId)
   }
 
   // Add İnComing Chat Html Element
@@ -150,8 +165,9 @@ export const ChatContextProvider: React.FC<ChatProviderProps> = ({ children }) =
     let temp = message
     MessageArray.push(<InComingBuble key={getCurrentTimestamp()} message={temp} />)
     setMessageArray(MessageArray)
+    // TextToSpeech(temp)
     setInComingMessage('')
-    ReadOut(InComingMessage)
+    // ReadOut(InComingMessage)
   }
 
   // Ui komutları
@@ -185,7 +201,28 @@ export const ChatContextProvider: React.FC<ChatProviderProps> = ({ children }) =
 
   // Promptları backende uygun hale getirir
   const SetMessage = (_results: any[]) => {
-    const commandForGpt = ['Hey kapsül', 'Ey kapsül', 'EKAP sim', 'ey kapsül', 'iyi kapsül', 'ilk Kapsül', 'e kapsül']
+    const commandForGpt = [
+      'eymak',
+      'Ey Eman',
+      'Hey ema',
+      'Hey Ema',
+      'Hey ama',
+      'hey ema',
+      ' hey Ema',
+      'Ey ama',
+      'Ey ema',
+      'Ey Ema',
+      'ey ema',
+      'ey Ema',
+      'iyi Ema',
+      'iyi ema',
+      'ilk Ema',
+      'ilk ema',
+      'e Ema',
+      'e ema',
+      'eyemouth',
+      'Ema'
+    ]
 
     if (_results.length === 0) return
     let temp: any | undefined = _results[_results.length - 1].transcript
@@ -193,7 +230,11 @@ export const ChatContextProvider: React.FC<ChatProviderProps> = ({ children }) =
 
     commandForGpt.forEach((command: string) => {
       if (temp.startsWith(command)) {
-        setOutGoingMessage(temp.slice(command.length + 1, temp.length))
+        if (temp.slice(command.length + 1, temp.length).startsWith(' ')) {
+          setOutGoingMessage(temp.slice(command.length + 2, temp.length))
+        } else {
+          setOutGoingMessage(temp.slice(command.length + 1, temp.length))
+        }
       } else {
         SetCommand(temp)
       }
@@ -208,6 +249,8 @@ export const ChatContextProvider: React.FC<ChatProviderProps> = ({ children }) =
         AddOutGoing,
         AddInComing,
         OutGoingMessage,
+        Audio,
+        setAudio,
         setOutGoingMessage,
         MessageArray,
         setMessageArray,
