@@ -105,6 +105,10 @@ export const ChatContextProvider: React.FC<ChatProviderProps> = ({ children }) =
     // useOnlyGoogleCloud: true
   })
 
+  function getCurrentTimestamp() {
+    return Math.floor(Date.now() / 1000) // Şu anki zaman damgasını saniye cinsinden alır
+  }
+
   // New request for GPT
   const MessageRequest = async () => {
     if (!(OutGoingMessage.length > 0) || !Speech2Text.isRecording) return
@@ -119,11 +123,12 @@ export const ChatContextProvider: React.FC<ChatProviderProps> = ({ children }) =
     if (OutGoingMessage.length === 0) return
     Speech2Text.stopSpeechToText()
     let temp = OutGoingMessage.charAt(0).toUpperCase() + OutGoingMessage.slice(1)
-    MessageArray.push(<OutGoingBuble message={temp} />)
+    MessageArray.push(<OutGoingBuble key={getCurrentTimestamp()} message={temp} />)
     setMessageArray(MessageArray)
     setOutGoingMessage('')
     MessageRequest()
   }
+
   // Sesli konuşma
   function ReadOut(message: string) {
     const speech = new SpeechSynthesisUtterance()
@@ -143,7 +148,7 @@ export const ChatContextProvider: React.FC<ChatProviderProps> = ({ children }) =
     if (message.length === 0) return
     Speech2Text.startSpeechToText()
     let temp = message
-    MessageArray.push(<InComingBuble message={temp} />)
+    MessageArray.push(<InComingBuble key={getCurrentTimestamp()} message={temp} />)
     setMessageArray(MessageArray)
     setInComingMessage('')
     ReadOut(InComingMessage)
