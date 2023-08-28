@@ -2,10 +2,12 @@ import React, { useContext } from 'react'
 import 'animate.css'
 import { ChatContext } from '../../contexts/ChatContext'
 
+import { withLogger } from '../../log'
+
 interface OutComing {
   message: string
 }
-export const OutGoingBuble: React.FC<OutComing> = ({ message }) => {
+export const OutGoingBubleLog: React.FC<OutComing> = ({ message }) => {
   const { Theme } = useContext(ChatContext)
 
   return (
@@ -20,3 +22,5 @@ export const OutGoingBuble: React.FC<OutComing> = ({ message }) => {
     </div>
   )
 }
+
+export const OutGoingBuble = withLogger(OutGoingBubleLog, 'OutGoingBuble')

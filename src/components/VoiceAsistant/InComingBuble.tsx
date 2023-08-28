@@ -3,11 +3,15 @@ import 'animate.css'
 import React, { useContext } from 'react'
 import { ChatContext } from '../../contexts/ChatContext'
 
+import { withLogger } from '../../log'
+
 interface InComing {
   message: string
 }
 
-export const InComingBuble: React.FC<InComing> = ({ message }) => {
+//animate__animated animate__fadeInLeftBig content
+
+const InComingBubleLog: React.FC<InComing> = ({ message }) => {
   const { Theme } = useContext(ChatContext)
 
   return (
@@ -20,4 +24,5 @@ export const InComingBuble: React.FC<InComing> = ({ message }) => {
     </div>
   )
 }
-//animate__animated animate__fadeInLeftBig content
+
+export const InComingBuble: React.FC<InComing> = withLogger(InComingBubleLog, 'InComingBuble')

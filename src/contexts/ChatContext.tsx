@@ -4,6 +4,8 @@ import useSpeechToText from 'react-hook-speech-to-text'
 import { InComingBuble, IsWriting, OutGoingBuble } from '../components/VoiceAsistant'
 import React, { ReactNode, createContext, useCallback, useMemo, useState } from 'react'
 
+import { withLogger, withLoggerAsync } from '../log'
+
 interface ChatContextType {
   temp: boolean
   OutGoingMessage: string
@@ -61,19 +63,19 @@ export const ChatContext = createContext<ChatContextType>({
   Room: '',
   Audio: null,
   InComingMessage: '',
-  setOutGoingMessage: () => {},
-  setMessageArray: () => {},
-  setTheme: () => {},
-  setAudio: () => {},
-  setInComingMessage: () => {},
-  AddOutGoing: () => {},
-  setRoom: () => {},
-  AddInComing: (message: string) => {},
-  setHistory: () => {},
-  setTemp: () => {},
-  MessageRequest: () => {},
-  Speech2Text: () => {},
-  SetMessage: () => {}
+  setOutGoingMessage: withLogger(() => {}, 'setOutGoingMessage'),
+  setMessageArray: withLogger(() => {}, 'setMessageArray'),
+  setTheme: withLogger(() => {}, 'setTheme'),
+  setAudio: withLogger(() => {}, 'setAudio'),
+  setInComingMessage: withLogger(() => {}, 'setInComingMessage'),
+  AddOutGoing: withLogger(() => {}, 'AddOutGoing'),
+  setRoom: withLogger(() => {}, 'setRoom'),
+  AddInComing: withLogger(() => {}, 'AddInComing'),
+  setHistory: withLogger(() => {}, 'setHistory'),
+  setTemp: withLogger(() => {}, 'setTemp'),
+  MessageRequest: withLogger(() => {}, 'MessageRequest'),
+  Speech2Text: withLogger(() => {}, 'Speech2Text'),
+  SetMessage: withLogger(() => {}, 'SetMessage')
 })
 
 export const ChatContextProvider: React.FC<ChatProviderProps> = ({ children }) => {
@@ -112,12 +114,15 @@ export const ChatContextProvider: React.FC<ChatProviderProps> = ({ children }) =
   })
 
   // Mesaj baloncukları için uniq key
-  const getCurrentTimestamp = () => {
+
+  const getCurrentTimestampLog = () => {
     return Math.floor(Date.now() / 1000) // Şu anki zaman damgasını saniye cinsinden alır
   }
 
+  const getCurrentTimestamp = withLogger(getCurrentTimestampLog, 'getCurrentTimestamp')
+
   // Add OutGoing Chat Html Element
-  const AddOutGoing = () => {
+  const AddOutGoingLog = () => {
     if (OutGoingMessage.length === 0) return
     Speech2Text.stopSpeechToText()
     let temp = OutGoingMessage.charAt(0).toUpperCase() + OutGoingMessage.slice(1)
@@ -127,8 +132,10 @@ export const ChatContextProvider: React.FC<ChatProviderProps> = ({ children }) =
     MessageRequest()
   }
 
+  const AddOutGoing = withLogger(AddOutGoingLog, 'AddOutGoing')
+
   // Buffer to Audio
-  const SoundPlayer = (soundData: any) => {
+  const SoundPlayerLog = (soundData: any) => {
     const bufferToArrayBuffer = (buffer: number[]): ArrayBuffer => {
       return new Uint8Array(buffer).buffer
     }
@@ -139,8 +146,10 @@ export const ChatContextProvider: React.FC<ChatProviderProps> = ({ children }) =
     return arrayBufferToUrl(bufferToArrayBuffer(soundData))
   }
 
+  const SoundPlayer = withLogger(SoundPlayerLog, 'SoundPlayer')
+
   // Text to speech Api
-  const TextToSpeech = async (message: string) => {
+  const TextToSpeechLog = async (message: string) => {
     let temp = await textToSpeech(message)
     if (!temp) return
     console.log(temp)
@@ -148,8 +157,10 @@ export const ChatContextProvider: React.FC<ChatProviderProps> = ({ children }) =
     setAudio(<ReactPlayer className="hidden" url={soundUrl} controls playing />)
   }
 
+  const TextToSpeech = withLoggerAsync(TextToSpeechLog, 'TextToSpeech')
+
   // New request for GPT
-  const MessageRequest = async () => {
+  const MessageRequestLog = async () => {
     if (!(OutGoingMessage.length > 0) || !Speech2Text.isRecording) return
     let temp = await messageRequest(OutGoingMessage, History)
     TextToSpeech(temp.message.content)
@@ -158,8 +169,10 @@ export const ChatContextProvider: React.FC<ChatProviderProps> = ({ children }) =
     setHistory(temp.historyId)
   }
 
+  const MessageRequest = withLoggerAsync(MessageRequestLog, 'MessageRequest')
+
   // Add İnComing Chat Html Element
-  const AddInComing = (message: string) => {
+  const AddInComingLog = (message: string) => {
     if (message.length === 0) return
     Speech2Text.startSpeechToText()
     let temp = message
@@ -170,8 +183,10 @@ export const ChatContextProvider: React.FC<ChatProviderProps> = ({ children }) =
     // ReadOut(InComingMessage)
   }
 
+  const AddInComing = withLogger(AddInComingLog, 'AddInComing')
+
   // Ui komutları
-  const SetCommand = (temp: string) => {
+  const SetCommandLog = (temp: string) => {
     if (temp === 'karanlık temaya geç' || temp === 'karanlık demeye geç') {
       setTheme({
         text_color: 'text-white',
@@ -199,9 +214,13 @@ export const ChatContextProvider: React.FC<ChatProviderProps> = ({ children }) =
     }
   }
 
+  const SetCommand = withLogger(SetCommandLog, 'SetCommand')
+
   // Promptları backende uygun hale getirir
-  const SetMessage = (_results: any[]) => {
+  const SetMessageLog = (_results: any[]) => {
     const commandForGpt = [
+      ' hey',
+      'hey',
       'eymak',
       'Ey Eman',
       'Hey ema',
@@ -240,6 +259,8 @@ export const ChatContextProvider: React.FC<ChatProviderProps> = ({ children }) =
       }
     })
   }
+
+  const SetMessage = withLogger(SetMessageLog, 'SetMessage')
 
   return (
     <ChatContext.Provider

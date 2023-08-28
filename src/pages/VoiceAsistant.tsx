@@ -6,37 +6,54 @@ import { ChatContext } from '../contexts/ChatContext'
 import { IsWriting } from '../components/VoiceAsistant'
 import { useContext, useEffect, useRef, useState } from 'react'
 
-export const ChatAssistant = () => {
+import { withLogger } from '../log'
+
+const ChatAssistantLog = () => {
   const ScrollingBottom = useRef<any>(null)
   const { OutGoingMessage, SetMessage, Audio, setAudio, Room, setRoom, Theme, InComingMessage, AddOutGoing, AddInComing, MessageArray, Speech2Text } = useContext(ChatContext)
 
   // İlk render olduğunda mikrofonu açar
-  useEffect(() => {
-    setTimeout(() => {
-      Speech2Text.startSpeechToText()
-      AddInComing("Merhaba benim adım Ema, size yardımcı olmak için buradayım. 'Hey Ema' komutu ile benimle konuşabilirsiniz.")
-    }, 1000)
-  }, [])
+  useEffect(
+    withLogger(() => {
+      setTimeout(() => {
+        Speech2Text.startSpeechToText()
+        AddInComing("Merhaba benim adım Ema, size yardımcı olmak için buradayım. 'Hey Ema' komutu ile benimle konuşabilirsiniz.")
+      }, 1000)
+    }, 'ChatAssistantLog.UseEffect.2'),
+    []
+  )
 
   // Giden mesaj
-  useEffect(() => {
-    AddOutGoing()
-  }, [OutGoingMessage])
+  useEffect(
+    withLogger(() => {
+      AddOutGoing()
+    }, 'ChatAssistantLog.UseEffect.2'),
+    [OutGoingMessage]
+  )
 
   // Gelen mesaj
-  useEffect(() => {
-    AddInComing(InComingMessage)
-  }, [InComingMessage])
+  useEffect(
+    withLogger(() => {
+      AddInComing(InComingMessage)
+    }, 'ChatAssistantLog.UseEffect.3'),
+    [InComingMessage]
+  )
 
   // Sürekli aşşağı kaymasını sağlar
-  useEffect(() => {
-    ScrollingBottom.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [InComingMessage, OutGoingMessage])
+  useEffect(
+    withLogger(() => {
+      ScrollingBottom.current?.scrollIntoView({ behavior: 'smooth' })
+    }, 'ChatAssistantLog.UseEffect.4'),
+    [InComingMessage, OutGoingMessage]
+  )
 
   // Sesli komuttan gelen veriyi hazırlar
-  useEffect(() => {
-    SetMessage(Speech2Text.results)
-  }, [Speech2Text.results])
+  useEffect(
+    withLogger(() => {
+      SetMessage(Speech2Text.results)
+    }, 'ChatAssistantLog.UseEffect.5'),
+    [Speech2Text.results]
+  )
 
   // Speech to text error trigger
   if (Speech2Text.error) {
@@ -70,3 +87,5 @@ export const ChatAssistant = () => {
     </div>
   )
 }
+
+export const ChatAssistant = withLogger(ChatAssistantLog, 'ChatAssistant')

@@ -2,6 +2,10 @@ import React, { useEffect, useRef, useState } from 'react'
 import Peer from 'peerjs'
 import { useNavigate, useParams } from 'react-router-dom'
 
-export const VideoChat = () => {
+import { withLogger } from '../log'
+
+const VideoChatLog = () => {
   return <div></div>
 }
+
+export const VideoChat = withLogger(VideoChatLog, 'VideoChat')

@@ -2,10 +2,12 @@ import { useContext } from 'react'
 import { Helmet } from 'react-helmet'
 import siyahKapsul from '../others/siyahKapsul.png'
 
+import { withLogger } from '../log'
+
 import { Outlet } from 'react-router-dom'
 import { ChatContext } from '../contexts/ChatContext'
 
-export const MainLayout = () => {
+const MainLayoutLog = () => {
   const { Theme } = useContext(ChatContext)
   return (
     <>
@@ -17,3 +19,5 @@ export const MainLayout = () => {
     </>
   )
 }
+
+export const MainLayout = withLogger(MainLayoutLog, 'MainLayout')

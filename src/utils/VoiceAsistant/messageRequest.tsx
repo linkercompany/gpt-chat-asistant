@@ -1,6 +1,8 @@
 import { axiosForGptConnector } from '..'
 
-export const messageRequest = async (message: string, historyID?: string) => {
+import { withLoggerAsync } from '../../log'
+
+const messageRequestLog = async (message: string, historyID?: string) => {
   if (historyID?.length !== 0) {
     try {
       const res = await axiosForGptConnector.post(
@@ -39,3 +41,5 @@ export const messageRequest = async (message: string, historyID?: string) => {
     }
   }
 }
+
+export const messageRequest = withLoggerAsync(messageRequestLog, 'messageRequest')

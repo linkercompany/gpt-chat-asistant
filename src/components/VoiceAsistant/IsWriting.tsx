@@ -2,7 +2,9 @@ import 'animate.css'
 import React, { useContext } from 'react'
 import { ChatContext } from '../../contexts/ChatContext'
 
-export const IsWriting = () => {
+import { withLogger } from '../../log'
+
+const IsWritingLog = () => {
   const { Theme } = useContext(ChatContext)
 
   return (
@@ -23,3 +25,5 @@ export const IsWriting = () => {
   )
 }
 // animate__animated animate__wobble animate__delay-5s animate__infinite
+
+export const IsWriting = withLogger(IsWritingLog, 'IsWriting')

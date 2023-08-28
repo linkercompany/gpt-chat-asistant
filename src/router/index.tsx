@@ -1,9 +1,11 @@
-import { Navigate, useRoutes } from "react-router-dom";
+import { Navigate, useRoutes } from 'react-router-dom'
 
-import { MainLayout } from "../layouts";
+import { MainLayout } from '../layouts'
 import { ChatAssistant, VideoChat } from '../pages'
 
-export const Router = () => {
+import { withLogger } from '../log'
+
+const RouterLog = () => {
   return useRoutes([
     {
       path: '',
@@ -16,3 +18,5 @@ export const Router = () => {
     { path: '*', element: <Navigate to="/" replace /> }
   ])
 }
+
+export const Router = withLogger(RouterLog, 'Router')
