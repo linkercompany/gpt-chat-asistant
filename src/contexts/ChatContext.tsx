@@ -36,8 +36,8 @@ interface ChatContextType {
   setAudio: React.Dispatch<React.SetStateAction<any>>
   setInComingMessage: React.Dispatch<React.SetStateAction<string>>
   setTemp: React.Dispatch<React.SetStateAction<boolean>>
-  MessageRequest: () => void
-  AddOutGoing: () => void
+  MessageRequest: (message: string, history: any) => void
+  AddOutGoing: (outGoing: string) => void
   AddInComing: (message: string) => void
   SetMessage: (_results: any[]) => void
 }
@@ -66,12 +66,12 @@ export const ChatContext = createContext<ChatContextType>({
   setTheme: () => {},
   setAudio: () => {},
   setInComingMessage: () => {},
-  AddOutGoing: () => {},
+  AddOutGoing: (outGoing: string) => {},
   setRoom: () => {},
   AddInComing: (message: string) => {},
   setHistory: () => {},
   setTemp: () => {},
-  MessageRequest: () => {},
+  MessageRequest: (message: string, history: any) => {},
   Speech2Text: () => {},
   SetMessage: () => {}
 })
@@ -98,7 +98,7 @@ export const ChatContextProvider: React.FC<ChatProviderProps> = ({ children }) =
     svg_image: 'light'
   })
 
-  // Speech to text libary
+  // Speech to text libary +
   const Speech2Text = useSpeechToText({
     continuous: true,
     crossBrowser: true,
@@ -111,135 +111,123 @@ export const ChatContextProvider: React.FC<ChatProviderProps> = ({ children }) =
     // useOnlyGoogleCloud: true
   })
 
-  // Mesaj baloncukları için uniq key
+  // Mesaj baloncukları için uniq key +
   const getCurrentTimestamp = () => {
     return Math.floor(Date.now() / 1000) // Şu anki zaman damgasını saniye cinsinden alır
   }
 
-  // Add OutGoing Chat Html Element
-  const AddOutGoing = () => {
-    if (OutGoingMessage.length === 0) return
-    Speech2Text.stopSpeechToText()
-    let temp = OutGoingMessage.charAt(0).toUpperCase() + OutGoingMessage.slice(1)
-    MessageArray.push(<OutGoingBuble key={getCurrentTimestamp()} message={temp} />)
-    setMessageArray(MessageArray)
-    setOutGoingMessage('')
-    MessageRequest()
-  }
+  // Promptları backende uygun hale getirir
+  const SetMessage = useCallback(
+    (_results: any[]) => {
+      if (_results.length === 0) return
+      const commandForGpt = ['hey', 'ey']
+      let temp: any | undefined = _results[_results.length - 1].transcript.toLowerCase().trim()
+      console.log('Transcript = ', temp)
+      commandForGpt.forEach((command: string) => {
+        if (temp.startsWith(command)) {
+          setOutGoingMessage(temp.slice(command.length + 1, temp.length))
+        } else {
+          SetCommand(temp)
+        }
+      })
+    },
+    [Speech2Text.results]
+  )
 
-  // Buffer to Audio
-  const SoundPlayer = (soundData: any) => {
-    const bufferToArrayBuffer = (buffer: number[]): ArrayBuffer => {
-      return new Uint8Array(buffer).buffer
-    }
-    const arrayBufferToUrl = (buffer: ArrayBuffer): string => {
-      const blob = new Blob([buffer], { type: 'audio/wav' })
-      return URL.createObjectURL(blob)
-    }
-    return arrayBufferToUrl(bufferToArrayBuffer(soundData))
-  }
+  // Ui komutları
+  const SetCommand = useCallback(
+    (temp: string) => {
+      if (temp === 'karanlık temaya geç' || temp === 'karanlık demeye geç') {
+        setTheme({
+          text_color: 'text-white',
+          buble_background: 'bg-[#333333]/90',
+          background: 'bg-black',
+          navbar_background: 'bg-[#333333]/50',
+          svg_image: 'dark'
+        })
+      } else if (temp === 'aydınlık temaya geç' || temp === 'aydınlık demeye geç') {
+        setTheme({
+          text_color: 'text-black',
+          buble_background: 'bg-[#EAEAEA]/90',
+          background: 'bg-white',
+          navbar_background: 'bg-[#EAEAEA]',
+          svg_image: 'light'
+        })
+      } else if (temp === 'temizle') {
+        setOutGoingMessage('')
+        setInComingMessage('')
+        setHistory('')
+        setMessageArray([])
+        setAudio(null)
+      } else if (temp === 'tamam') {
+        setAudio(null)
+      }
+    },
+    [SetMessage]
+  )
 
-  // Text to speech Api
-  const TextToSpeech = async (message: string) => {
-    let temp = await textToSpeech(message)
-    if (!temp) return
-    console.log(temp)
-    let soundUrl = SoundPlayer(temp.result.data)
-    setAudio(<ReactPlayer className="hidden" url={soundUrl} controls playing />)
-  }
+  // Add OutGoing Chat Html Element +
+  const AddOutGoing = useCallback(
+    (outGoing: string) => {
+      if (outGoing.length === 0) return
+      Speech2Text.stopSpeechToText()
+      let temp = outGoing.charAt(0).toUpperCase() + outGoing.slice(1)
+      MessageArray.push(<OutGoingBuble key={getCurrentTimestamp()} message={temp} />)
+      setMessageArray(MessageArray)
+      setOutGoingMessage('')
+      MessageRequest(OutGoingMessage, History)
+    },
+    [OutGoingMessage, SetMessage, History]
+  )
 
   // New request for GPT
-  const MessageRequest = async () => {
-    if (!(OutGoingMessage.length > 0) || !Speech2Text.isRecording) return
-    let temp = await messageRequest(OutGoingMessage, History)
+  const MessageRequest = async (message: string, history: any) => {
+    if (message.length === 0 || !Speech2Text.isRecording) return
+    let temp = await messageRequest(message, history)
     TextToSpeech(temp.message.content)
-    console.log(temp.message)
     setInComingMessage(temp.message.content)
+    if(history===History)return
     setHistory(temp.historyId)
   }
 
   // Add İnComing Chat Html Element
-  const AddInComing = (message: string) => {
-    if (message.length === 0) return
-    Speech2Text.startSpeechToText()
-    let temp = message
-    MessageArray.push(<InComingBuble key={getCurrentTimestamp()} message={temp} />)
-    setMessageArray(MessageArray)
-    // TextToSpeech(temp)
-    setInComingMessage('')
-    // ReadOut(InComingMessage)
-  }
-
-  // Ui komutları
-  const SetCommand = (temp: string) => {
-    if (temp === 'karanlık temaya geç' || temp === 'karanlık demeye geç') {
-      setTheme({
-        text_color: 'text-white',
-        buble_background: 'bg-[#333333]/90',
-        background: 'bg-black',
-        navbar_background: 'bg-[#333333]/50',
-        svg_image: 'dark'
-      })
-    } else if (temp === 'aydınlık temaya geç' || temp === 'aydınlık demeye geç') {
-      setTheme({
-        text_color: 'text-black',
-        buble_background: 'bg-[#EAEAEA]/90',
-        background: 'bg-white',
-        navbar_background: 'bg-[#EAEAEA]',
-        svg_image: 'light'
-      })
-    } else if (temp === 'temizle') {
-      setOutGoingMessage('')
+  const AddInComing = useCallback(
+    (message: string) => {
+      if (message.length === 0) return
+      Speech2Text.startSpeechToText()
+      let temp = message
+      MessageArray.push(<InComingBuble key={getCurrentTimestamp()} message={temp} />)
+      setMessageArray(MessageArray)
       setInComingMessage('')
-      setHistory('')
-      setMessageArray([])
-      window.speechSynthesis.cancel()
-    } else if (temp === 'tamam') {
-      window.speechSynthesis.cancel()
-    }
-  }
+    },
+    [InComingMessage]
+  )
 
-  // Promptları backende uygun hale getirir
-  const SetMessage = (_results: any[]) => {
-    const commandForGpt = [
-      'eymak',
-      'Ey Eman',
-      'Hey ema',
-      'Hey Ema',
-      'Hey ama',
-      'hey ema',
-      ' hey Ema',
-      'Ey ama',
-      'Ey ema',
-      'Ey Ema',
-      'ey ema',
-      'ey Ema',
-      'iyi Ema',
-      'iyi ema',
-      'ilk Ema',
-      'ilk ema',
-      'e Ema',
-      'e ema',
-      'eyemouth',
-      'Ema'
-    ]
+  // Text to speech Api
+  const TextToSpeech = useCallback(
+    async (message: string) => {
+      let temp = await textToSpeech(message)
+      if (!temp) return
+      let soundUrl = SoundPlayer(temp.result.data)
+      setAudio(<ReactPlayer className="hidden" url={soundUrl} controls playing />)
+    },
+    [InComingMessage]
+  )
 
-    if (_results.length === 0) return
-    let temp: any | undefined = _results[_results.length - 1].transcript
-    console.log('Transcript = ', temp)
-
-    commandForGpt.forEach((command: string) => {
-      if (temp.startsWith(command)) {
-        if (temp.slice(command.length + 1, temp.length).startsWith(' ')) {
-          setOutGoingMessage(temp.slice(command.length + 2, temp.length))
-        } else {
-          setOutGoingMessage(temp.slice(command.length + 1, temp.length))
-        }
-      } else {
-        SetCommand(temp)
+  // Buffer to Audio
+  const SoundPlayer = useCallback(
+    (soundData: any) => {
+      const bufferToArrayBuffer = (buffer: number[]): ArrayBuffer => {
+        return new Uint8Array(buffer).buffer
       }
-    })
-  }
+      const arrayBufferToUrl = (buffer: ArrayBuffer): string => {
+        const blob = new Blob([buffer], { type: 'audio/wav' })
+        return URL.createObjectURL(blob)
+      }
+      return arrayBufferToUrl(bufferToArrayBuffer(soundData))
+    },
+    [TextToSpeech]
+  )
 
   return (
     <ChatContext.Provider

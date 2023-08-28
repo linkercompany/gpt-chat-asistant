@@ -1,14 +1,18 @@
+// Kapsül logosu
 import siyah from '../assets/siyah.svg'
-import beyaz from '../assets/beyaz.svg'
-import redDot from '../assets/redDot.png'
+// Linker logosu
+import dikeySiyah from '../assets/dikeySiyah.svg'
+import dikeyBeyaz from '../assets/dikeyBeyaz.svg'
 
+import { useContext, useEffect, useRef } from 'react'
 import { ChatContext } from '../contexts/ChatContext'
 import { IsWriting } from '../components/VoiceAsistant'
-import { useContext, useEffect, useRef, useState } from 'react'
+import { faCircle } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 export const ChatAssistant = () => {
   const ScrollingBottom = useRef<any>(null)
-  const { OutGoingMessage, SetMessage, Audio, setAudio, Room, setRoom, Theme, InComingMessage, AddOutGoing, AddInComing, MessageArray, Speech2Text } = useContext(ChatContext)
+  const { OutGoingMessage, SetMessage, Audio, Room, Theme, InComingMessage, AddOutGoing, AddInComing, MessageArray, Speech2Text } = useContext(ChatContext)
 
   // İlk render olduğunda mikrofonu açar
   useEffect(() => {
@@ -20,7 +24,7 @@ export const ChatAssistant = () => {
 
   // Giden mesaj
   useEffect(() => {
-    AddOutGoing()
+    AddOutGoing(OutGoingMessage)
   }, [OutGoingMessage])
 
   // Gelen mesaj
@@ -28,38 +32,33 @@ export const ChatAssistant = () => {
     AddInComing(InComingMessage)
   }, [InComingMessage])
 
+  // Sesli komuttan gelen veriyi hazırlar
+  useEffect(() => {
+    SetMessage(Speech2Text.results)
+    console.log('Speech2Text : ', Speech2Text.results)
+  }, [Speech2Text.results])
+
   // Sürekli aşşağı kaymasını sağlar
   useEffect(() => {
     ScrollingBottom.current?.scrollIntoView({ behavior: 'smooth' })
   }, [InComingMessage, OutGoingMessage])
 
-  // Sesli komuttan gelen veriyi hazırlar
-  useEffect(() => {
-    SetMessage(Speech2Text.results)
-  }, [Speech2Text.results])
-
   // Speech to text error trigger
   if (Speech2Text.error) {
-    console.log('Speech recognition error:', Speech2Text.error)
     return <p>{Speech2Text.error}</p>
   }
-
+  //
   return (
     <div
-      className={`m-w-[100vw] m-h-[100vh] box-border cursor-pointer  bg-center bg-no-repeat bg-[length:70vw_70vh] relative ${Theme.text_color}`}
+      className={`m-w-[100vw] m-h-[100vh] box-border cursor-pointer  bg-center bg-no-repeat bg-[length:70vw_70vh] relative scrollbar-width-none ${Theme.text_color}`}
       style={{
-        backgroundImage: `url(${Theme.svg_image === 'light' ? siyah : beyaz})`
+        backgroundImage: `url(${Theme.svg_image === 'light' ? dikeySiyah : dikeyBeyaz})`
       }}
     >
-      <span
-        style={{
-          backgroundImage: `url(${Speech2Text.isRecording ? redDot : ''})`
-        }}
-        className={` mt-[0.5vh] ml-[0.5vh] absolute  h-[1vh] w-[1vh] box-border cursor-pointer  bg-center bg-no-repeat bg-[length:1vw_1vw] ${Theme.background}`}
-      />
+      {Speech2Text.isRecording ? <FontAwesomeIcon className={` mt-[0.5vh] ml-[0.5vh] absolute  h-[1vh] w-[1vh] text-red-600 `} icon={faCircle} /> : ''}
       {Audio ? Audio : ''}
-      <div className={` flex flex-col justify-end  ${Speech2Text.isRecording ? 'h-[100vh]' : 'h-[95vh]'}	`}>
-        <div className="overflow-auto scroll-smooth  ">
+      <div className={` flex flex-col justify-end  ${Speech2Text.isRecording ? 'h-[100vh]' : 'h-[90vh]'} scrollbar-width-none	`}>
+        <div className="overflow-auto scroll-smooth scrollbar-width-none ">
           {MessageArray.map((message: any) => {
             return message
           })}
