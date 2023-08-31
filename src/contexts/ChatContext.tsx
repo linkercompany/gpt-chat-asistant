@@ -159,8 +159,10 @@ export const ChatContextProvider: React.FC<ChatProviderProps> = ({ children }) =
         setHistory('')
         setMessageArray([])
         setAudio(null)
+        window.location.reload()
       } else if (temp === 'tamam') {
         setAudio(null)
+        window.location.reload()
       }
     },
     [SetMessage]

@@ -12,7 +12,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 export const ChatAssistant = () => {
   const ScrollingBottom = useRef<any>(null)
-  const { OutGoingMessage, SetMessage, Audio, Room, Theme, InComingMessage, AddOutGoing, AddInComing, MessageArray, Speech2Text } = useContext(ChatContext)
+  const { OutGoingMessage, SetMessage, Audio, Theme, InComingMessage, AddOutGoing, AddInComing, MessageArray, Speech2Text } = useContext(ChatContext)
 
   // İlk render olduğunda mikrofonu açar
   useEffect(() => {
